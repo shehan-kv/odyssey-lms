@@ -1,0 +1,8 @@
+# Env Files
+.env
+
+# VS Code Files
+.vscode
+
+# DB Files
+.db

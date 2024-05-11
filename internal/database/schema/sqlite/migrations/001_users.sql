@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   password TEXT NOT NULL,
   avatar_name TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_login DATETIME,
   bio TEXT
 );
 

@@ -16,3 +16,11 @@ sql:
         package: "postgresql"
         out: "internal/database/sqlc/postgresql"
         sql_package: "pgx/v5"
+
+  - engine: "mysql"
+    queries: "internal/database/schema/mysql/query"
+    schema: "internal/database/schema/mysql/migrations"
+    gen:
+      go:
+        package: "mysql"
+        out: "internal/database/sqlc/mysql"

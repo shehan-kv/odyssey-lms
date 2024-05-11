@@ -2,8 +2,17 @@ version: "2"
 sql:
   - engine: "sqlite"
     queries: "internal/database/schema/sqlite/query"
-    schema: "internal/database/schema/sqlite/schema"
+    schema: "internal/database/schema/sqlite/migrations"
     gen:
       go:
         package: "sqlite"
-        out: "internal/database/generated/sqlite"
+        out: "internal/database/sqlc/sqlite"
+
+  - engine: "postgresql"
+    queries: "internal/database/schema/postgresql/query"
+    schema: "internal/database/schema/postgresql/migrations"
+    gen:
+      go:
+        package: "postgresql"
+        out: "internal/database/sqlc/postgresql"
+        sql_package: "pgx/v5"

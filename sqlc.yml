@@ -1,26 +1,26 @@
 version: "2"
 sql:
   - engine: "sqlite"
-    queries: "internal/database/schema/sqlite/query"
-    schema: "internal/database/schema/sqlite/migrations"
+    queries: "internal/db/schema/sqlite/query"
+    schema: "internal/db/schema/sqlite/migrations"
     gen:
       go:
         package: "sqlite"
-        out: "internal/database/sqlc/sqlite"
+        out: "internal/db/sqlc/sqlite"
 
   - engine: "postgresql"
-    queries: "internal/database/schema/postgresql/query"
-    schema: "internal/database/schema/postgresql/migrations"
+    queries: "internal/db/schema/postgresql/query"
+    schema: "internal/db/schema/postgresql/migrations"
     gen:
       go:
         package: "postgresql"
-        out: "internal/database/sqlc/postgresql"
+        out: "internal/db/sqlc/postgresql"
         sql_package: "pgx/v5"
 
   - engine: "mysql"
-    queries: "internal/database/schema/mysql/query"
-    schema: "internal/database/schema/mysql/migrations"
+    queries: "internal/db/schema/mysql/query"
+    schema: "internal/db/schema/mysql/migrations"
     gen:
       go:
         package: "mysql"
-        out: "internal/database/sqlc/mysql"
+        out: "internal/db/sqlc/mysql"

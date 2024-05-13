@@ -2,7 +2,7 @@
 
 .PHONY:fmt vet build
 
-fmt: sqlc
+fmt:
 	go fmt ./...
 
 vet: fmt

@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
   bio TEXT
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS users_email_idx ON users(email)
+CREATE UNIQUE INDEX IF NOT EXISTS users_email_idx ON users(email);
 
 -- +goose Down
 DROP TABLE IF EXISTS users;

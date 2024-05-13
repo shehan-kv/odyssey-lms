@@ -11,7 +11,11 @@ CREATE TABLE IF NOT EXISTS users (
   bio TEXT
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS users_email_idx ON users(email)
+
+SET @indexCount := (SELECT count(*) FROM information_schema.statistics WHERE table_name = 'users' AND index_name = 'users_email_idx' AND table_schema = DATABASE());
+SET @createIndex := IF( @indexCount > 0, 'SELECT ''Index exists.''', 'ALTER TABLE users ADD INDEX users_email_idx (email);');
+PREPARE stmt FROM @createIndex;
+EXECUTE stmt;
 
 -- +goose Down
 DROP TABLE IF EXISTS users;

@@ -11,13 +11,13 @@ import (
 	"odyssey.lms/internal/colors"
 )
 
-//go:embed schema/sqlite/migrations/*.sql
+//go:embed migrations/sqlite/*.sql
 var sqliteMigrations embed.FS
 
-//go:embed schema/postgresql/migrations/*.sql
+//go:embed migrations/postgresql/*.sql
 var postgresqlMigrations embed.FS
 
-//go:embed schema/mysql/migrations/*.sql
+//go:embed migrations/mysql/*.sql
 var mysqlMigrations embed.FS
 
 func RunMigrations() {
@@ -35,7 +35,7 @@ func RunMigrations() {
 		if err := goose.SetDialect(string(goose.DialectSQLite3)); err != nil {
 			log.Fatal(colors.RedBold + "[ ERROR ] Setting migration dialect failed" + colors.Reset)
 		}
-		if err := goose.Up(dbConn, "schema/sqlite/migrations"); err != nil {
+		if err := goose.Up(dbConn, "migrations/sqlite"); err != nil {
 			log.Fatal(colors.RedBold + "[ ERROR ] Database migration failed" + colors.Reset)
 		}
 
@@ -44,7 +44,7 @@ func RunMigrations() {
 		if err := goose.SetDialect("mysql"); err != nil {
 			log.Fatal(colors.RedBold + "[ ERROR ] Setting migration dialect failed" + colors.Reset)
 		}
-		if err := goose.Up(dbConn, "schema/mysql/migrations"); err != nil {
+		if err := goose.Up(dbConn, "migrations/mysql"); err != nil {
 			log.Fatal(colors.RedBold + "[ ERROR ] Database migration failed" + colors.Reset)
 		}
 
@@ -53,7 +53,7 @@ func RunMigrations() {
 		if err := goose.SetDialect("postgres"); err != nil {
 			log.Fatal(colors.RedBold + "[ ERROR ] Setting migration dialect failed" + colors.Reset)
 		}
-		if err := goose.Up(dbConn, "schema/postgresql/migrations"); err != nil {
+		if err := goose.Up(dbConn, "migrations/postgresql"); err != nil {
 			log.Println(err)
 			log.Fatal(colors.RedBold + "[ ERROR ] Database migration failed" + colors.Reset)
 		}
@@ -63,7 +63,7 @@ func RunMigrations() {
 		if err := goose.SetDialect("sqlite3"); err != nil {
 			log.Fatal(colors.RedBold + "[ ERROR ] Setting migration dialect failed" + colors.Reset)
 		}
-		if err := goose.Up(dbConn, "schema/sqlite/migrations"); err != nil {
+		if err := goose.Up(dbConn, "migrations/sqlite"); err != nil {
 			log.Fatal(colors.RedBold + "[ ERROR ] Database migration failed" + colors.Reset)
 		}
 	}

@@ -1,7 +1,7 @@
 package server
 
 import (
-	"fmt"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -9,6 +9,7 @@ import (
 	"odyssey.lms/internal/auth"
 	"odyssey.lms/internal/colors"
 	"odyssey.lms/internal/db"
+	"odyssey.lms/web"
 )
 
 func init() {
@@ -19,8 +20,13 @@ func init() {
 
 func RunApplication() {
 
+	staticUiFs, _ := fs.Sub(web.WebUiFS, "ui/build")
+
+	http.Handle("GET /_app/", http.FileServerFS(staticUiFs))
+	http.Handle("GET /favicon.png", http.FileServerFS(staticUiFs))
+
 	http.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "<h1>Hello From Odyssey LMS ! </h1>")
+		http.ServeFileFS(w, r, staticUiFs, "index.html")
 	})
 
 	listenOn := os.Getenv("LISTEN_ON")

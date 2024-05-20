@@ -1,0 +1,130 @@
+package mysql
+
+import (
+	"context"
+
+	"odyssey.lms/internal/db/models"
+	"odyssey.lms/internal/db/params"
+)
+
+func (q *Queries) CreateUser(ctx context.Context, arg params.CreateUser) (models.User, error) {
+
+	query := `INSERT INTO users (first_name, last_name, email, password, avatar_name, bio)
+	VALUES (?,?,?,?,?,?)`
+
+	result, err := q.db.ExecContext(ctx, query,
+		arg.FirstName,
+		arg.LastName,
+		arg.Email,
+		arg.Password,
+		arg.AvatarName,
+		arg.Bio,
+	)
+
+	var user models.User
+
+	if err != nil {
+		return user, err
+	}
+
+	insertedId, err := result.LastInsertId()
+	if err != nil {
+		return user, err
+	}
+
+	newUserQuery := `SELECT id, first_name, last_name, email, avatar_name, created_at, bio
+	FROM users WHERE id = ?
+	`
+	row := q.db.QueryRowContext(ctx, newUserQuery, insertedId)
+
+	err = row.Scan(
+		&user.ID,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+		&user.AvatarName,
+		&user.CreatedAt,
+		&user.Bio,
+	)
+
+	return user, err
+}
+
+func (q *Queries) CountUsersByRole(ctx context.Context, role string) (int64, error) {
+
+	query := `SELECT count(*) FROM user_roles
+	JOIN roles ON roles.id = user_roles.role_id
+	WHERE roles.name = ?
+	`
+	row := q.db.QueryRowContext(ctx, query, role)
+
+	var userCount int64
+	err := row.Scan(&userCount)
+
+	return userCount, err
+}
+
+func (q *Queries) DeleteUserById(ctx context.Context, id int64) error {
+	query := "DELETE FROM users WHERE id = ?"
+	_, err := q.db.ExecContext(ctx, query, id)
+
+	return err
+}
+
+func (q *Queries) CreateRole(ctx context.Context, name string) (models.Role, error) {
+
+	query := "INSERT INTO roles (name) VALUES (?)"
+	result, err := q.db.ExecContext(ctx, query, name)
+
+	var role models.Role
+	if err != nil {
+		return role, err
+	}
+
+	insertedId, err := result.LastInsertId()
+	if err != nil {
+		return role, err
+	}
+
+	newRoleQuery := "SELECT id, name FROM roles WHERE id = ?"
+	row := q.db.QueryRowContext(ctx, newRoleQuery, insertedId)
+
+	err = row.Scan(&role.ID, &role.Name)
+
+	return role, err
+}
+
+func (q *Queries) CountRoles(ctx context.Context) (int64, error) {
+
+	query := "SELECT count(*) FROM roles"
+	row := q.db.QueryRowContext(ctx, query)
+
+	var count int64
+	err := row.Scan(&count)
+
+	return count, err
+}
+
+func (q *Queries) AssignUserRole(ctx context.Context, arg params.AssignUserRole) (models.UserRole, error) {
+
+	query := `INSERT INTO user_roles (user_id, role_id)
+	VALUES (?, (SELECT id FROM roles WHERE name = ?))`
+
+	_, err := q.db.ExecContext(ctx, query, arg.UserID, arg.RoleName)
+
+	var userRole models.UserRole
+	if err != nil {
+		return userRole, err
+	}
+
+	roleQuery := "SELECT id FROM roles WHERE name = ?"
+	row := q.db.QueryRowContext(ctx, roleQuery, arg.RoleName)
+
+	var roleId int64
+	err = row.Scan(&roleId)
+
+	userRole.RoleID = roleId
+	userRole.UserID = arg.UserID
+
+	return userRole, err
+}

@@ -1,15 +1,12 @@
 .DEFAULT_GOAL := build
 
-.PHONY:sqlc fmt vet build
+.PHONY:fmt vet build
 
-sqlc:
-	sqlc generate
-
-fmt: sqlc
+fmt:
 	go fmt ./...
 
 vet: fmt
 	go vet ./...
 
 build: vet
-	go build
+	go build ./cmd/...

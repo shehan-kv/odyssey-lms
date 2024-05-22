@@ -6,3 +6,6 @@
 
 # DB Files
 *.db
+
+# EXE Files
+*.exe

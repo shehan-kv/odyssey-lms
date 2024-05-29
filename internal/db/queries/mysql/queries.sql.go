@@ -7,6 +7,28 @@ import (
 	"odyssey.lms/internal/db/params"
 )
 
+func (q *Queries) FindUserWithPasswordByEmail(ctx context.Context, email string) (models.User, error) {
+
+	const query = `SELECT * FROM users WHERE email = ?`
+	row := q.db.QueryRowContext(ctx, query, email)
+
+	var user models.User
+
+	err := row.Scan(
+		&user.ID,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+		&user.Password,
+		&user.AvatarName,
+		&user.CreatedAt,
+		&user.Bio,
+	)
+
+	return user, err
+
+}
+
 func (q *Queries) CreateUser(ctx context.Context, arg params.CreateUser) (models.User, error) {
 
 	query := `INSERT INTO users (first_name, last_name, email, password, avatar_name, bio)

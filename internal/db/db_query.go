@@ -9,6 +9,8 @@ import (
 	"odyssey.lms/internal/db/queries/sqlite"
 )
 
+var QUERY = GetDBQuery()
+
 func GetDBQuery() DBQuery {
 
 	dbEngine := strings.ToLower(os.Getenv("DB_VARIANT"))

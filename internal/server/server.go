@@ -9,6 +9,7 @@ import (
 	"odyssey.lms/internal/auth"
 	"odyssey.lms/internal/colors"
 	"odyssey.lms/internal/db"
+	"odyssey.lms/internal/handler"
 	"odyssey.lms/web"
 )
 
@@ -19,6 +20,8 @@ func init() {
 }
 
 func RunApplication() {
+
+	http.HandleFunc("POST /api/auth/sign-in", handler.SignIn)
 
 	staticUiFs, _ := fs.Sub(web.WebUiFS, "ui/build")
 

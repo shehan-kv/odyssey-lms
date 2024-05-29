@@ -14,8 +14,7 @@ import (
 func CreateDefaultAdminUser() {
 
 	ctx := context.Background()
-	dbQuery := db.GetDBQuery()
-	adminCount, _ := dbQuery.CountUsersByRole(ctx, "administrator")
+	adminCount, _ := db.QUERY.CountUsersByRole(ctx, "administrator")
 
 	if adminCount != 0 {
 		return
@@ -27,7 +26,7 @@ func CreateDefaultAdminUser() {
 		log.Fatal(colors.RedBold + "[ ERROR ] Failed to create admin account" + colors.Reset)
 	}
 
-	adminUser, err := dbQuery.CreateUser(ctx, params.CreateUser{
+	adminUser, err := db.QUERY.CreateUser(ctx, params.CreateUser{
 		FirstName: "Default",
 		LastName:  "Administrator",
 		Email:     "admin@lms.local",
@@ -42,9 +41,9 @@ func CreateDefaultAdminUser() {
 		log.Fatal(colors.RedBold + "[ ERROR ] Failed to create admin account" + colors.Reset)
 	}
 
-	_, err = dbQuery.AssignUserRole(ctx, params.AssignUserRole{UserID: adminUser.ID, RoleName: "administrator"})
+	_, err = db.QUERY.AssignUserRole(ctx, params.AssignUserRole{UserID: adminUser.ID, RoleName: "administrator"})
 	if err != nil {
-		_ = dbQuery.DeleteUserById(ctx, adminUser.ID)
+		_ = db.QUERY.DeleteUserById(ctx, adminUser.ID)
 		log.Fatal(colors.RedBold + "[ ERROR ] Failed to create admin account" + colors.Reset)
 	}
 

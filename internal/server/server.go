@@ -22,6 +22,7 @@ func init() {
 func RunApplication() {
 
 	http.HandleFunc("POST /api/auth/sign-in", handler.SignIn)
+	http.HandleFunc("GET /api/auth/is-signed-in", handler.IsSignedIn)
 
 	staticUiFs, _ := fs.Sub(web.WebUiFS, "ui/build")
 

@@ -1,4 +1,5 @@
 <script>
+	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 
 	import Logo from '$lib/components/logo.svelte';
@@ -10,6 +11,7 @@
 	import ThemeToggle from '$lib/components/themeToggle.svelte';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { toast } from 'svelte-sonner';
+	import FullScreenLoader from '$lib/components/ui/fullScreenLoader.svelte';
 
 	const formState = { email: '', password: '', remember_me: false };
 
@@ -34,11 +36,31 @@
 				toast.error('Sign in Failed');
 			});
 	};
+
+	let loading = true;
+
+	onMount(() => {
+		fetch('/api/auth/is-signed-in')
+			.then((response) => {
+				if (response.status == 200) {
+					goto('/');
+				} else {
+					loading = false;
+				}
+			})
+			.catch(() => {
+				loading = false;
+			});
+	});
 </script>
 
 <svelte:head>
 	<title>Sign In</title>
 </svelte:head>
+
+{#if loading}
+	<FullScreenLoader />
+{/if}
 
 <div class="fixed top-10 left-10 text-neutral-900 dark:text-neutral-100">
 	<p class="sm:hidden">xs</p>

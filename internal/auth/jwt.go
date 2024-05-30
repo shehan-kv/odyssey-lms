@@ -3,6 +3,7 @@ package auth
 import (
 	"errors"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -10,12 +11,13 @@ import (
 
 var key = []byte(os.Getenv("JWT_KEY"))
 
+// NewJWTToken issues a new JWT token signed with the JWT_KEY environment variable
 func NewJWTToken(id int64) (string, error) {
 
 	// TODO: Update to send a refresh token
 	// currently the JWT expires in 2 days (for development)
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": id,
+		"sub": strconv.FormatInt(id, 10),
 		"exp": time.Now().Add(time.Hour * 48).Unix(),
 		"iat": time.Now().Unix(),
 	})
@@ -25,6 +27,7 @@ func NewJWTToken(id int64) (string, error) {
 	return s, err
 }
 
+// VerifyJWTToken verifies a JWT token and returns the subject of the token or an error
 func VerifyJWTToken(tokenEncoded string) (string, error) {
 
 	tokenDecoded, err := jwt.ParseWithClaims(tokenEncoded, jwt.MapClaims{}, func(t *jwt.Token) (interface{}, error) {

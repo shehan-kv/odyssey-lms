@@ -11,7 +11,7 @@
 	import ThemeToggle from '$lib/components/themeToggle.svelte';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { toast } from 'svelte-sonner';
-	import FullScreenLoader from '$lib/components/ui/fullScreenLoader.svelte';
+	import FullScreenLoader from '$lib/components/fullScreenLoader.svelte';
 
 	const formState = { email: '', password: '', remember_me: false };
 
@@ -62,22 +62,12 @@
 	<FullScreenLoader />
 {/if}
 
-<div class="fixed top-10 left-10 text-neutral-900 dark:text-neutral-100">
-	<p class="sm:hidden">xs</p>
-	<p class="hidden sm:block md:hidden">sm</p>
-	<p class="hidden md:block lg:hidden">md</p>
-	<p class="hidden lg:block xl:hidden">lg</p>
-	<p class="hidden xl:block 2xl:hidden">xl</p>
-	<p class="hidden 2xl:block 3xl:hidden">2xl</p>
-	<p class="hidden 3xl:block 4xl:hidden">3xl</p>
-</div>
-
 <div
 	class="-z-10 fixed h-screen w-full bg-neutral-100 dark:bg-neutral-900 bg-[radial-gradient(#ddd_1px,transparent_1px)] dark:bg-[radial-gradient(#333_1px,transparent_1px)] [background-size:2rem_2rem]"
 ></div>
 
 <ThemeToggle
-	class="absolute top-5 right-10 h-14 rounded-full border bg-white hover:bg-neutral-100 text-neutral-900 dark:bg-neutral-950 dark:hover:bg-neutral-900 dark:text-neutral-100"
+	class="absolute top-5 right-4 h-14 rounded-full border bg-white hover:bg-neutral-100 text-neutral-900 dark:bg-neutral-950 dark:hover:bg-neutral-900 dark:text-neutral-100"
 />
 
 <div class="min-h-screen px-4 sm:px-0 flex justify-center items-center">

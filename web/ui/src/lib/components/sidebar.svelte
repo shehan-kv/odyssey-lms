@@ -21,7 +21,7 @@
 	</div>
 
 	<div class="flex flex-col mt-5">
-		<SidebarLink><LibrarySquare size={20} />Course Library</SidebarLink>
+		<SidebarLink to="/course-library"><LibrarySquare size={20} />Course Library</SidebarLink>
 		<SidebarLink><Users size={20} /> IAM</SidebarLink>
 		<SidebarLink><Info size={20} /> Events</SidebarLink>
 		<SidebarLink><Bell size={20} />Notifications</SidebarLink>

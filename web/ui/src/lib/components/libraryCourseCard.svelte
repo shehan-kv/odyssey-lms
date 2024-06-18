@@ -9,7 +9,7 @@
 	 * 	code: string,
 	 * 	description:string,
 	 *  category: string,
-	 * 	students: number
+	 * 	enrolled: number
 	 * }}
 	 */
 	export let course;
@@ -29,6 +29,6 @@
 		{course.description}
 	</p>
 	<p>
-		<span class="flex items-center gap-2 text-sm"><Users2 size={16} />{course.students}</span>
+		<span class="flex items-center gap-2 text-sm"><Users2 size={16} />{course.enrolled}</span>
 	</p>
 </div>

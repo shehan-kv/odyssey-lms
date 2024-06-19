@@ -5,6 +5,7 @@
 		GraduationCap,
 		Info,
 		LibrarySquare,
+		SendHorizonal,
 		Settings,
 		Ticket,
 		Users,
@@ -50,6 +51,9 @@
 			<SidebarLink to="/iam"><Users size={20} /> IAM</SidebarLink>
 			<SidebarLink to="/events"><Info size={20} /> Events</SidebarLink>
 			<SidebarLink to="/notifications"><Bell size={20} />Notifications</SidebarLink>
+			<SidebarLink to="/sent-notifications"
+				><SendHorizonal size={20} />Sent Notifications</SidebarLink
+			>
 			<SidebarLink to="/support-tickets"><Ticket size={20} />Support Tickets</SidebarLink>
 			<SidebarLink><Settings size={20} />Settings</SidebarLink>
 		</div>

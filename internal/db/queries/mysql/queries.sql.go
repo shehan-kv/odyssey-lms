@@ -124,26 +124,10 @@ func (q *Queries) CountRoles(ctx context.Context) (int64, error) {
 	return count, err
 }
 
-func (q *Queries) AssignUserRole(ctx context.Context, arg params.AssignUserRole) (models.UserRole, error) {
+func (q *Queries) AssignUserRole(ctx context.Context, arg params.AssignUserRole) error {
 
-	query := `INSERT INTO user_roles (user_id, role_id)
-	VALUES (?, (SELECT id FROM roles WHERE name = ?))`
+	const query = "UPDATE user SET role = (SELECT id FROM roles WHERE name = ?) WHERE id = ?"
+	_, err := q.db.ExecContext(ctx, query, arg.RoleName, arg.UserID)
 
-	_, err := q.db.ExecContext(ctx, query, arg.UserID, arg.RoleName)
-
-	var userRole models.UserRole
-	if err != nil {
-		return userRole, err
-	}
-
-	roleQuery := "SELECT id FROM roles WHERE name = ?"
-	row := q.db.QueryRowContext(ctx, roleQuery, arg.RoleName)
-
-	var roleId int64
-	err = row.Scan(&roleId)
-
-	userRole.RoleID = roleId
-	userRole.UserID = arg.UserID
-
-	return userRole, err
+	return err
 }

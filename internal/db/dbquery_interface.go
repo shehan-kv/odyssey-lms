@@ -14,5 +14,5 @@ type DBQuery interface {
 	DeleteUserById(ctx context.Context, id int64) error
 	CreateRole(ctx context.Context, name string) (models.Role, error)
 	CountRoles(ctx context.Context) (int64, error)
-	AssignUserRole(ctx context.Context, arg params.AssignUserRole) (models.UserRole, error)
+	AssignUserRole(ctx context.Context, arg params.AssignUserRole) error
 }

@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS users (
   password TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   last_login TIMESTAMPTZ,
-  bio TEXT
+  bio TEXT,
+  role BIGINT FOREIGN KEY REFERENCES role(id)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS users_email_idx ON users(email);

@@ -9,7 +9,7 @@ import (
 
 func (q *Queries) FindUserWithPasswordByEmail(ctx context.Context, email string) (models.User, error) {
 
-	const query = `SELECT id, first_name, last_name, email, password, avatar_name, created_at, bio FROM users WHERE email = ?`
+	const query = `SELECT id, first_name, last_name, email, password, created_at, bio FROM users WHERE email = ?`
 	row := q.db.QueryRowContext(ctx, query, email)
 
 	var user models.User
@@ -100,19 +100,10 @@ func (q *Queries) CountRoles(ctx context.Context) (int64, error) {
 	return count, err
 }
 
-func (q *Queries) AssignUserRole(ctx context.Context, arg params.AssignUserRole) (models.UserRole, error) {
+func (q *Queries) AssignUserRole(ctx context.Context, arg params.AssignUserRole) error {
 
-	const query = `INSERT INTO user_roles (user_id, role_id)
-	VALUES (?, (SELECT id FROM roles WHERE name = ?))
-	RETURNING user_id, role_id`
+	const query = "UPDATE user SET role = (SELECT id FROM roles WHERE name = ?) WHERE id = ?"
+	_, err := q.db.ExecContext(ctx, query, arg.RoleName, arg.UserID)
 
-	row := q.db.QueryRowContext(ctx, query, arg.UserID, arg.RoleName)
-
-	var userRole models.UserRole
-	err := row.Scan(
-		&userRole.UserID,
-		&userRole.RoleID,
-	)
-
-	return userRole, err
+	return err
 }

@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"context"
-	"log"
 	"strconv"
 	"strings"
 
@@ -70,7 +69,6 @@ func (q *Queries) GetUsers(ctx context.Context, arg params.UserQueryParams) ([]d
 		sb.WriteString(strconv.Itoa(offset))
 	}
 
-	log.Println(sb.String())
 	rows, err := q.db.QueryContext(ctx, sb.String())
 	if err != nil {
 		return nil, err

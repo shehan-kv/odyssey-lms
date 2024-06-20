@@ -2,7 +2,6 @@ package postgresql
 
 import (
 	"context"
-	"log"
 	"strconv"
 	"strings"
 
@@ -68,7 +67,6 @@ func (q *Queries) GetUsers(ctx context.Context, arg params.UserQueryParams) ([]d
 
 	}
 
-	log.Println(sb.String())
 	rows, err := q.db.QueryContext(ctx, sb.String())
 	if err != nil {
 		return nil, err

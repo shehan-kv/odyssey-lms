@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   password TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   last_login TIMESTAMPTZ,
+  is_active BOOLEAN,
   bio TEXT,
   role BIGINT FOREIGN KEY REFERENCES role(id)
 );

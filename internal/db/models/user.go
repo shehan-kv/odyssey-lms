@@ -9,6 +9,7 @@ type User struct {
 	Email     string
 	Password  string
 	Role      int64
+	IsActive  bool
 	CreatedAt sql.NullTime
 	LastLogin sql.NullTime
 	Bio       sql.NullString

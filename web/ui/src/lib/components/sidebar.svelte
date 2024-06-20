@@ -29,6 +29,6 @@
 		<SidebarLink to="/sent-notifications"><SendHorizonal size={20} />Sent Notifications</SidebarLink
 		>
 		<SidebarLink to="/support-tickets"><Ticket size={20} />Support Tickets</SidebarLink>
-		<SidebarLink><Settings size={20} />Settings</SidebarLink>
+		<SidebarLink to="/settings"><Settings size={20} />Settings</SidebarLink>
 	</div>
 </div>

@@ -31,36 +31,36 @@ func (q *Queries) FindUserWithPasswordByEmail(ctx context.Context, email string)
 
 }
 
-func (q *Queries) GetUsers(ctx context.Context, params params.UserQueryParams) ([]models.User, error) {
+func (q *Queries) GetUsers(ctx context.Context, arg params.UserQueryParams) ([]models.User, error) {
 	var sb strings.Builder
 	sb.WriteString("SELECT u.id, u.first_name, u.last_name, u.email, u.created_at, u.last_login, u.is_active, r.name FROM users u")
 	sb.WriteString("JOIN roles r ON u.role = r.id")
-	if params.Search != "" || params.Role != "" {
+	if arg.Search != "" || arg.Role != "" {
 		sb.WriteString(" WHERE")
-		if params.Search != "" {
+		if arg.Search != "" {
 			sb.WriteString(" first_name LIKE '")
-			sb.WriteString(params.Search)
+			sb.WriteString(arg.Search)
 			sb.WriteString("'")
 			sb.WriteString(" OR last_name LIKE '")
-			sb.WriteString(params.Search)
+			sb.WriteString(arg.Search)
 			sb.WriteString("'")
 		}
 
-		if params.Search != "" && params.Role != "" {
+		if arg.Search != "" && arg.Role != "" {
 			sb.WriteString(" AND")
 		}
 
-		if params.Role != "" {
+		if arg.Role != "" {
 			sb.WriteString(" role = '")
-			sb.WriteString(params.Role)
+			sb.WriteString(arg.Role)
 			sb.WriteString("'")
 		}
 	}
 
-	if params.Page > 0 {
-		offset := (params.Page - 1) * params.Limit
+	if arg.Page > 0 {
+		offset := (arg.Page - 1) * arg.Limit
 		sb.WriteString(" LIMIT ")
-		sb.WriteString(strconv.Itoa(params.Limit))
+		sb.WriteString(strconv.Itoa(arg.Limit))
 		sb.WriteString(" ")
 		sb.WriteString(" OFFSET ")
 		sb.WriteString(strconv.Itoa(offset))
@@ -98,33 +98,25 @@ func (q *Queries) GetUsers(ctx context.Context, params params.UserQueryParams) (
 	return users, nil
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg params.CreateUser) (models.User, error) {
+func (q *Queries) CreateUser(ctx context.Context, arg params.CreateUser) (int64, error) {
 
-	const query = `INSERT INTO users (first_name, last_name, email, password, avatar_name, bio)
-	VALUES (?,?,?,?,?,?)
-	RETURNING id, first_name, last_name, email, avatar_name, created_at, bio
-	`
+	const query = `INSERT INTO users (first_name, last_name, email, password, is_active, bio)
+	VALUES (?,?,?,?,?,?)`
 
-	row := q.db.QueryRowContext(ctx, query,
+	result, err := q.db.ExecContext(ctx, query,
 		arg.FirstName,
 		arg.LastName,
 		arg.Email,
 		arg.Password,
+		arg.IsActive,
 		arg.Bio,
 	)
+	if err != nil {
+		return 0, err
+	}
 
-	var user models.User
-
-	err := row.Scan(
-		&user.ID,
-		&user.FirstName,
-		&user.LastName,
-		&user.Email,
-		&user.CreatedAt,
-		&user.Bio,
-	)
-
-	return user, err
+	id, err := result.LastInsertId()
+	return id, err
 }
 
 func (q *Queries) CountUsersByRole(ctx context.Context, role string) (int64, error) {

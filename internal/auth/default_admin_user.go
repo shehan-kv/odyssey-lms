@@ -26,11 +26,12 @@ func CreateDefaultAdminUser() {
 		log.Fatal(colors.RedBold + "[ ERROR ] Failed to create admin account" + colors.Reset)
 	}
 
-	adminUser, err := db.QUERY.CreateUser(ctx, params.CreateUser{
+	adminId, err := db.QUERY.CreateUser(ctx, params.CreateUser{
 		FirstName: "Default",
 		LastName:  "Administrator",
 		Email:     "admin@lms.local",
 		Password:  hashedPassword,
+		IsActive:  true,
 		Bio: sql.NullString{
 			String: "This is the default admin account of the system, created when other admin " +
 				"accounts couldn't be found. Please delete this account once you create an admin account",
@@ -41,9 +42,9 @@ func CreateDefaultAdminUser() {
 		log.Fatal(colors.RedBold + "[ ERROR ] Failed to create admin account" + colors.Reset)
 	}
 
-	err = db.QUERY.AssignUserRole(ctx, params.AssignUserRole{UserID: adminUser.ID, RoleName: "administrator"})
+	err = db.QUERY.AssignUserRole(ctx, params.AssignUserRole{UserID: adminId, RoleName: "administrator"})
 	if err != nil {
-		_ = db.QUERY.DeleteUserById(ctx, adminUser.ID)
+		_ = db.QUERY.DeleteUserById(ctx, adminId)
 		log.Fatal(colors.RedBold + "[ ERROR ] Failed to create admin account" + colors.Reset)
 	}
 

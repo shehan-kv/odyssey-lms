@@ -7,5 +7,6 @@ type CreateUser struct {
 	LastName  string
 	Email     string
 	Password  string
+	IsActive  bool
 	Bio       sql.NullString
 }

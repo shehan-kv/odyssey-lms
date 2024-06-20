@@ -20,7 +20,6 @@ func (q *Queries) FindUserWithPasswordByEmail(ctx context.Context, email string)
 		&user.LastName,
 		&user.Email,
 		&user.Password,
-		&user.AvatarName,
 		&user.CreatedAt,
 		&user.Bio,
 	)
@@ -41,7 +40,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg params.CreateUser) (models
 		arg.LastName,
 		arg.Email,
 		arg.Password,
-		arg.AvatarName,
 		arg.Bio,
 	)
 
@@ -52,7 +50,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg params.CreateUser) (models
 		&user.FirstName,
 		&user.LastName,
 		&user.Email,
-		&user.AvatarName,
 		&user.CreatedAt,
 		&user.Bio,
 	)

@@ -8,6 +8,7 @@ import (
 
 	"odyssey.lms/internal/db/models"
 	"odyssey.lms/internal/db/params"
+	dto "odyssey.lms/internal/dto/user"
 )
 
 func (q *Queries) FindUserWithPasswordByEmail(ctx context.Context, email string) (models.User, error) {
@@ -31,10 +32,10 @@ func (q *Queries) FindUserWithPasswordByEmail(ctx context.Context, email string)
 
 }
 
-func (q *Queries) GetUsers(ctx context.Context, arg params.UserQueryParams) ([]models.User, error) {
+func (q *Queries) GetUsers(ctx context.Context, arg params.UserQueryParams) ([]dto.UserResponse, error) {
 	var sb strings.Builder
 	sb.WriteString("SELECT u.id, u.first_name, u.last_name, u.email, u.created_at, u.last_login, u.is_active, r.name FROM users u")
-	sb.WriteString("JOIN roles r ON u.role = r.id")
+	sb.WriteString(" JOIN roles r ON u.role = r.id")
 	if arg.Search != "" || arg.Role != "" {
 		sb.WriteString(" WHERE")
 		if arg.Search != "" {
@@ -75,9 +76,9 @@ func (q *Queries) GetUsers(ctx context.Context, arg params.UserQueryParams) ([]m
 
 	defer rows.Close()
 
-	var users []models.User
+	var users []dto.UserResponse
 	for rows.Next() {
-		var user models.User
+		var user dto.UserResponse
 		err := rows.Scan(
 			&user.ID,
 			&user.FirstName,
@@ -175,7 +176,7 @@ func (q *Queries) CountRoles(ctx context.Context) (int64, error) {
 
 func (q *Queries) AssignUserRole(ctx context.Context, arg params.AssignUserRole) error {
 
-	const query = "UPDATE user SET role = (SELECT id FROM roles WHERE name = $1) WHERE id = $2"
+	const query = "UPDATE users SET role = (SELECT id FROM roles WHERE name = $1) WHERE id = $2"
 	_, err := q.db.ExecContext(ctx, query, arg.RoleName, arg.UserID)
 
 	return err

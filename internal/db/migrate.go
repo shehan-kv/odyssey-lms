@@ -54,7 +54,6 @@ func RunMigrations() {
 			log.Fatal(colors.RedBold + "[ ERROR ] Setting migration dialect failed" + colors.Reset)
 		}
 		if err := goose.Up(dbConn, "migrations/postgresql"); err != nil {
-			log.Println(err)
 			log.Fatal(colors.RedBold + "[ ERROR ] Database migration failed" + colors.Reset)
 		}
 

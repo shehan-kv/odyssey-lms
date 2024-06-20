@@ -124,8 +124,8 @@ func (q *Queries) CreateUser(ctx context.Context, arg params.CreateUser) (int64,
 
 func (q *Queries) CountUsersByRole(ctx context.Context, role string) (int64, error) {
 
-	query := `SELECT count(*) FROM user_roles
-	JOIN roles ON roles.id = user_roles.role_id
+	query := `SELECT count(*) FROM users
+	JOIN roles ON roles.id = users.role
 	WHERE roles.name = ?
 	`
 	row := q.db.QueryRowContext(ctx, query, role)

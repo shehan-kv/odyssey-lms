@@ -26,6 +26,7 @@ func RunApplication() {
 	http.HandleFunc("GET /api/auth/is-signed-in", handler.IsSignedIn)
 
 	http.HandleFunc("GET /api/user", handler.GetUsers)
+	http.HandleFunc("POST /api/user", handler.CreateUser)
 
 	http.HandleFunc("GET /api/system", handler.GetSystemInfo)
 

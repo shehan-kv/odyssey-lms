@@ -206,6 +206,31 @@ func (q *Queries) CountRoles(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+func (q *Queries) GetRoles(ctx context.Context) ([]models.Role, error) {
+
+	var roles []models.Role
+
+	const query = "SELECT * FROM roles"
+	rows, err := q.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var role models.Role
+		err := rows.Scan(&role.ID, &role.Name, &role.IsDefault)
+		if err != nil {
+			return nil, err
+		}
+
+		roles = append(roles, role)
+	}
+
+	return roles, nil
+}
+
 func (q *Queries) AssignUserRole(ctx context.Context, arg params.AssignUserRole) error {
 
 	const query = "UPDATE users SET role = (SELECT id FROM roles WHERE name = ?) WHERE id = ?"

@@ -24,6 +24,8 @@ func RunApplication() {
 
 	http.HandleFunc("GET /api/user", handler.GetUsers)
 
+	http.HandleFunc("GET /api/system", handler.GetSystemInfo)
+
 	staticUiFs, _ := fs.Sub(web.WebUiFS, "ui/build")
 
 	http.Handle("GET /_app/", http.FileServerFS(staticUiFs))

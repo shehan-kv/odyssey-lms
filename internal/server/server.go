@@ -28,6 +28,8 @@ func RunApplication() {
 	http.HandleFunc("GET /api/user", handler.GetUsers)
 	http.HandleFunc("POST /api/user", handler.CreateUser)
 	http.HandleFunc("DELETE /api/user/{id}", handler.DeleteUser)
+	http.HandleFunc("POST /api/user/activate/{id}", handler.ActivateUser)
+	http.HandleFunc("POST /api/user/deactivate/{id}", handler.DeactivateUser)
 
 	http.HandleFunc("GET /api/system", handler.GetSystemInfo)
 

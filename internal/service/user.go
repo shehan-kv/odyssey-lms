@@ -120,3 +120,45 @@ func DeleteUser(ctx context.Context, userId int) error {
 	err = db.QUERY.DeleteUserById(ctx, int64(userId))
 	return err
 }
+
+func ActivateUser(ctx context.Context, userId int) error {
+	_, err := db.QUERY.FindUserById(ctx, userId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrUserNotFound
+		}
+		return err
+	}
+
+	err = db.QUERY.SetUserIsActive(ctx, int64(userId), true)
+	return err
+}
+
+func DeactivateUser(ctx context.Context, userId int) error {
+	existingUser, err := db.QUERY.FindUserById(ctx, userId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrUserNotFound
+		}
+		return err
+	}
+
+	role, err := db.QUERY.FindRoleById(ctx, existingUser.Role)
+	if err != nil {
+		return err
+	}
+
+	if role.Name == "administrator" {
+		adminCount, err := db.QUERY.CountUsersByRole(ctx, "administrator")
+		if err != nil {
+			return err
+		}
+
+		if adminCount == 1 {
+			return ErrLastAdminDeletion
+		}
+	}
+
+	err = db.QUERY.SetUserIsActive(ctx, int64(userId), false)
+	return err
+}

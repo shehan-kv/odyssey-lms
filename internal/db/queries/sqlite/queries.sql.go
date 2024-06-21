@@ -205,6 +205,13 @@ func (q *Queries) DeleteUserById(ctx context.Context, id int64) error {
 	return err
 }
 
+func (q *Queries) SetUserIsActive(ctx context.Context, id int64, status bool) error {
+	const query = "UPDATE users SET is_active = ? WHERE id = ?"
+	_, err := q.db.ExecContext(ctx, query, status, id)
+
+	return err
+}
+
 func (q *Queries) CreateRole(ctx context.Context, name string) (models.Role, error) {
 
 	const query = "INSERT INTO roles (name) VALUES (?) RETURNING id, name"

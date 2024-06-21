@@ -2,8 +2,10 @@ package sqlite
 
 import (
 	"context"
+	"database/sql"
 	"strconv"
 	"strings"
+	"time"
 
 	"odyssey.lms/internal/db/models"
 	"odyssey.lms/internal/db/params"
@@ -38,12 +40,12 @@ func (q *Queries) GetUsers(ctx context.Context, arg params.UserQueryParams) ([]d
 	if arg.Search != "" || arg.Role != "" {
 		sb.WriteString(" WHERE")
 		if arg.Search != "" {
-			sb.WriteString(" first_name LIKE '")
+			sb.WriteString(" first_name LIKE '%")
 			sb.WriteString(arg.Search)
-			sb.WriteString("'")
-			sb.WriteString(" OR last_name LIKE '")
+			sb.WriteString("%'")
+			sb.WriteString(" OR last_name LIKE '%")
 			sb.WriteString(arg.Search)
-			sb.WriteString("'")
+			sb.WriteString("%'")
 		}
 
 		if arg.Search != "" && arg.Role != "" {
@@ -51,7 +53,7 @@ func (q *Queries) GetUsers(ctx context.Context, arg params.UserQueryParams) ([]d
 		}
 
 		if arg.Role != "" {
-			sb.WriteString(" role = '")
+			sb.WriteString(" r.name = '")
 			sb.WriteString(arg.Role)
 			sb.WriteString("'")
 		}
@@ -76,13 +78,15 @@ func (q *Queries) GetUsers(ctx context.Context, arg params.UserQueryParams) ([]d
 	var users []dto.UserResponse
 	for rows.Next() {
 		var user dto.UserResponse
+		var createdAt sql.NullTime
+		var lastLogin sql.NullTime
 		err := rows.Scan(
 			&user.ID,
 			&user.FirstName,
 			&user.LastName,
 			&user.Email,
-			&user.CreatedAt,
-			&user.LastLogin,
+			&createdAt,
+			&lastLogin,
 			&user.IsActive,
 			&user.Role,
 		)
@@ -91,6 +95,12 @@ func (q *Queries) GetUsers(ctx context.Context, arg params.UserQueryParams) ([]d
 			return nil, err
 		}
 
+		if createdAt.Valid {
+			user.CreatedAt = createdAt.Time.Format(time.RFC3339)
+		}
+		if lastLogin.Valid {
+			user.LastLogin = lastLogin.Time.Format(time.RFC3339)
+		}
 		users = append(users, user)
 	}
 

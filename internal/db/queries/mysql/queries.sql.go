@@ -145,10 +145,34 @@ func (q *Queries) CountUsersByRole(ctx context.Context, role string) (int64, err
 	return userCount, err
 }
 
-func (q *Queries) CountUsers(ctx context.Context) (int64, error) {
+func (q *Queries) CountUsers(ctx context.Context, arg params.UserQueryParams) (int64, error) {
 
-	query := "SELECT count(*) FROM users"
-	row := q.db.QueryRowContext(ctx, query)
+	var sb strings.Builder
+	sb.WriteString("SELECT count(*) FROM users u")
+	sb.WriteString(" JOIN roles r ON u.role = r.id")
+	if arg.Search != "" || arg.Role != "" {
+		sb.WriteString(" WHERE")
+		if arg.Search != "" {
+			sb.WriteString(" first_name LIKE '%")
+			sb.WriteString(arg.Search)
+			sb.WriteString("%'")
+			sb.WriteString(" OR last_name LIKE '%")
+			sb.WriteString(arg.Search)
+			sb.WriteString("%'")
+		}
+
+		if arg.Search != "" && arg.Role != "" {
+			sb.WriteString(" AND")
+		}
+
+		if arg.Role != "" {
+			sb.WriteString(" r.name = '")
+			sb.WriteString(arg.Role)
+			sb.WriteString("'")
+		}
+	}
+
+	row := q.db.QueryRowContext(ctx, sb.String())
 
 	var userCount int64
 	err := row.Scan(&userCount)

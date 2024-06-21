@@ -57,13 +57,13 @@
 	 * 	totalCount: number,
 	 * 	users: {
 	 * 	id: number;
-	 * 	createdDate: string,
+	 * 	createdAt: string,
 	 * 	lastLogin: string,
 	 * 	firstName: string,
 	 * 	lastName:string,
 	 *  email: string,
-	 * 	status: string,
-	 *  roles: string[]
+	 * 	isActive: boolean,
+	 *  role: string
 	 * }[]}}
 	 */
 	let data;
@@ -219,15 +219,19 @@
 					<Table.Row>
 						<Table.Cell>{user.firstName} {user.lastName}</Table.Cell>
 						<Table.Cell>{user.email}</Table.Cell>
-						<Table.Cell>{user.roles.join(', ')}</Table.Cell>
-						<Table.Cell>{new Date(user.createdDate).toLocaleString()}</Table.Cell>
-						<Table.Cell>{new Date(user.lastLogin).toLocaleString()}</Table.Cell>
+						<Table.Cell class="capitalize">{user.role}</Table.Cell>
 						<Table.Cell>
-							{#if user.status == 'active'}
+							{user.createdAt ? new Date(user.createdAt).toLocaleString() : 'Not Found'}
+						</Table.Cell>
+						<Table.Cell>
+							{user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Not Found'}
+						</Table.Cell>
+						<Table.Cell>
+							{#if user.isActive}
 								<span class="flex justify-end items-center gap-2">
 									Active <span><CircleCheck size={16} /></span>
 								</span>
-							{:else if user.status == 'deactivated'}
+							{:else}
 								<span class="flex justify-end items-center gap-2">
 									Deactivated <span><CircleAlert size={16} /></span>
 								</span>
@@ -238,7 +242,7 @@
 								<DropdownMenu.Trigger><Ellipsis size={20} /></DropdownMenu.Trigger>
 								<DropdownMenu.Content>
 									<DropdownMenu.Item class="text-xs">Profile</DropdownMenu.Item>
-									{#if user.status == 'active'}
+									{#if user.isActive}
 										<DropdownMenu.Item
 											class="text-xs"
 											on:click={() => {
@@ -252,7 +256,7 @@
 										>
 											Deactivate
 										</DropdownMenu.Item>
-									{:else if (user.status = 'deactivated')}
+									{:else}
 										<DropdownMenu.Item
 											class="text-xs"
 											on:click={() => {

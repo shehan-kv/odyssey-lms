@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
   last_login TIMESTAMP,
   is_active BOOLEAN,
   bio TEXT,
-  role BIGINT FOREIGN KEY REFERENCES role(id)
+  role BIGINT FOREIGN KEY REFERENCES roles(id)
 );
 
 

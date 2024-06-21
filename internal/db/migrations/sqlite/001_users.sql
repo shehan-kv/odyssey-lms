@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
   is_active BOOLEAN,
   bio TEXT,
   role INTEGER, 
-  FOREIGN KEY (role) REFERENCES role(id)
+  FOREIGN KEY (role) REFERENCES roles(id)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS users_email_idx ON users(email);

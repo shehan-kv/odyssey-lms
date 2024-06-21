@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
   last_login TIMESTAMPTZ,
   is_active BOOLEAN,
   bio TEXT,
-  role BIGINT FOREIGN KEY REFERENCES role(id)
+  role BIGINT FOREIGN KEY REFERENCES roles(id)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS users_email_idx ON users(email);

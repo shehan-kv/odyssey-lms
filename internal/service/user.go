@@ -88,3 +88,35 @@ func CreateUser(ctx context.Context, createReq dto.UserCreateRequest) error {
 
 	return nil
 }
+
+var ErrLastAdminDeletion = errors.New("last admin account cannot be deleted")
+
+func DeleteUser(ctx context.Context, userId int) error {
+
+	existingUser, err := db.QUERY.FindUserById(ctx, userId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrUserNotFound
+		}
+		return err
+	}
+
+	role, err := db.QUERY.FindRoleById(ctx, existingUser.Role)
+	if err != nil {
+		return err
+	}
+
+	if role.Name == "administrator" {
+		adminCount, err := db.QUERY.CountUsersByRole(ctx, "administrator")
+		if err != nil {
+			return err
+		}
+
+		if adminCount == 1 {
+			return ErrLastAdminDeletion
+		}
+	}
+
+	err = db.QUERY.DeleteUserById(ctx, int64(userId))
+	return err
+}

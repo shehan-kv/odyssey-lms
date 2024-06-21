@@ -107,6 +107,27 @@ func (q *Queries) GetUsers(ctx context.Context, arg params.UserQueryParams) ([]d
 	return users, nil
 }
 
+func (q *Queries) FindUserById(ctx context.Context, userId int) (models.User, error) {
+	const query = `SELECT id, first_name, last_name, email, created_at, last_login, is_active, role FROM users
+	WHERE id = ?
+	`
+	row := q.db.QueryRowContext(ctx, query, userId)
+
+	var user models.User
+	err := row.Scan(
+		&user.ID,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+		&user.CreatedAt,
+		&user.LastLogin,
+		&user.IsActive,
+		&user.Role,
+	)
+
+	return user, err
+}
+
 func (q *Queries) CreateUser(ctx context.Context, arg params.CreateUser) (int64, error) {
 
 	const query = `INSERT INTO users (first_name, last_name, email, password, is_active, bio)
@@ -229,6 +250,16 @@ func (q *Queries) GetRoles(ctx context.Context) ([]models.Role, error) {
 	}
 
 	return roles, nil
+}
+
+func (q *Queries) FindRoleById(ctx context.Context, roleId int64) (models.Role, error) {
+	const query = "SELECT * FROM roles WHERE id = ?"
+	row := q.db.QueryRowContext(ctx, query, roleId)
+
+	var role models.Role
+	err := row.Scan(&role.ID, &role.Name, &role.IsDefault)
+
+	return role, err
 }
 
 func (q *Queries) AssignUserRole(ctx context.Context, arg params.AssignUserRole) error {

@@ -79,3 +79,30 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 }
+
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+
+	userId, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = service.DeleteUser(r.Context(), userId)
+	if err != nil {
+		if errors.Is(err, service.ErrUserNotFound) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		if errors.Is(err, service.ErrLastAdminDeletion) {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}

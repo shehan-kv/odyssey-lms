@@ -5,11 +5,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"odyssey.lms/internal/auth"
 	"odyssey.lms/internal/colors"
 	"odyssey.lms/internal/db"
-	"odyssey.lms/internal/handler"
 	"odyssey.lms/web"
 )
 
@@ -21,15 +21,16 @@ func init() {
 
 func RunApplication() {
 
-	http.HandleFunc("POST /api/auth/sign-in", handler.SignIn)
-	http.HandleFunc("GET /api/auth/is-signed-in", handler.IsSignedIn)
-
 	staticUiFs, _ := fs.Sub(web.WebUiFS, "ui/build")
 
 	http.Handle("GET /_app/", http.FileServerFS(staticUiFs))
 	http.Handle("GET /favicon.png", http.FileServerFS(staticUiFs))
 
 	http.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/api/") {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
 		http.ServeFileFS(w, r, staticUiFs, "index.html")
 	})
 

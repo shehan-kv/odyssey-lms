@@ -22,6 +22,9 @@ func init() {
 
 func RunApplication() {
 
+	http.HandleFunc("POST /api/auth/sign-in", handler.SignIn)
+	http.HandleFunc("GET /api/auth/is-signed-in", handler.IsSignedIn)
+
 	http.HandleFunc("GET /api/user", handler.GetUsers)
 
 	http.HandleFunc("GET /api/system", handler.GetSystemInfo)

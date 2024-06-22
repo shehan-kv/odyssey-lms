@@ -10,10 +10,12 @@
 
 	/**
 	 * @type {{
-	 * 	timestamp: number,
+	 * 	totalCount: number,
+	 *  events: {
+	 * 	createdAt: number,
 	 *  description: string,
 	 *  severity: string,
-	 * }[]}
+	 * }[]}}
 	 */
 	let data;
 
@@ -21,7 +23,7 @@
 		loading = true;
 		fetchError = false;
 
-		fetch('/api/event/recent')
+		fetch('/api/event?limit=6')
 			.then((response) => {
 				if (response.status != 200) {
 					fetchError = true;
@@ -60,13 +62,13 @@
 			<p>Recent Events</p>
 		</div>
 
-		{#if !fetchError && (!data || data.length == 0)}
+		{#if !fetchError && (!data || data.events.length == 0)}
 			<p class="text-sm text-center text-neutral-400 dark:text-neutral-600">
 				No Recent Events Found
 			</p>
 		{/if}
 
-		{#if data && data.length > 0}
+		{#if data && data.events.length > 0}
 			<div class="max-h-64 overflow-scroll">
 				<Table.Root class="text-xs">
 					<Table.Header>
@@ -77,9 +79,9 @@
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{#each data as event}
+						{#each data.events as event}
 							<Table.Row>
-								<Table.Cell>{new Date(event.timestamp).toLocaleString()}</Table.Cell>
+								<Table.Cell>{new Date(event.createdAt).toLocaleString()}</Table.Cell>
 								<Table.Cell>{event.description}</Table.Cell>
 								<Table.Cell>
 									<span class="flex justify-end items-center gap-2">

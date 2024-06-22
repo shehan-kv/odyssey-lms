@@ -67,7 +67,7 @@
 	 * @type {{
 	 * 	totalCount: number,
 	 * 	events: {
-	 * 	timestamp: number,
+	 * 	createdAt: number,
 	 * 	type: string,
 	 * 	description: string,
 	 * 	severity: string,
@@ -183,8 +183,10 @@
 			<Table.Body>
 				{#each data.events as event}
 					<Table.Row>
-						<Table.Cell>{new Date(event.timestamp).toLocaleString()}</Table.Cell>
-						<Table.Cell>{event.type}</Table.Cell>
+						<Table.Cell>
+							{event.createdAt ? new Date(event.createdAt).toLocaleString() : 'Not Found'}
+						</Table.Cell>
+						<Table.Cell class="capitalize">{event.type}</Table.Cell>
 						<Table.Cell>{event.description}</Table.Cell>
 						<Table.Cell>
 							{#if event.severity == 'info'}

@@ -31,6 +31,8 @@ func RunApplication() {
 	http.HandleFunc("POST /api/user/activate/{id}", handler.ActivateUser)
 	http.HandleFunc("POST /api/user/deactivate/{id}", handler.DeactivateUser)
 
+	http.HandleFunc("GET /api/event", handler.GetEvents)
+
 	http.HandleFunc("GET /api/system", handler.GetSystemInfo)
 
 	staticUiFs, _ := fs.Sub(web.WebUiFS, "ui/build")

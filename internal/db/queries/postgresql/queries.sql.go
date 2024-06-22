@@ -9,7 +9,9 @@ import (
 
 	"odyssey.lms/internal/db/models"
 	"odyssey.lms/internal/db/params"
-	dto "odyssey.lms/internal/dto/user"
+	evntDto "odyssey.lms/internal/dto/event"
+	queryParams "odyssey.lms/internal/dto/params"
+	usrDto "odyssey.lms/internal/dto/user"
 )
 
 func (q *Queries) FindUserWithPasswordByEmail(ctx context.Context, email string) (models.User, error) {
@@ -33,7 +35,7 @@ func (q *Queries) FindUserWithPasswordByEmail(ctx context.Context, email string)
 
 }
 
-func (q *Queries) GetUsers(ctx context.Context, arg params.UserQueryParams) ([]dto.UserResponse, error) {
+func (q *Queries) GetUsers(ctx context.Context, arg params.UserQueryParams) ([]usrDto.UserResponse, error) {
 	var sb strings.Builder
 	sb.WriteString("SELECT u.id, u.first_name, u.last_name, u.email, u.created_at, u.last_login, u.is_active, r.name FROM users u")
 	sb.WriteString(" JOIN roles r ON u.role = r.id")
@@ -76,9 +78,9 @@ func (q *Queries) GetUsers(ctx context.Context, arg params.UserQueryParams) ([]d
 
 	defer rows.Close()
 
-	var users []dto.UserResponse
+	var users []usrDto.UserResponse
 	for rows.Next() {
-		var user dto.UserResponse
+		var user usrDto.UserResponse
 		var createdAt sql.NullTime
 		var lastLogin sql.NullTime
 		err := rows.Scan(
@@ -275,4 +277,106 @@ func (q *Queries) AssignUserRole(ctx context.Context, arg params.AssignUserRole)
 	_, err := q.db.ExecContext(ctx, query, arg.RoleName, arg.UserID)
 
 	return err
+}
+
+func (q *Queries) CreateEvent(ctx context.Context, arg params.CreateEvent) error {
+	const query = "INSERT INTO events (type, description, severity) VALUES ($1,$2,$3)"
+	_, err := q.db.ExecContext(ctx, query, arg.Type, arg.Description, arg.Severity)
+
+	return err
+}
+
+func (q *Queries) GetEvents(ctx context.Context, arg queryParams.EventQueryParams) ([]evntDto.EventResponse, error) {
+	var sb strings.Builder
+	sb.WriteString("SELECT id, created_at, type, description, severity FROM events")
+	if arg.Search != "" || arg.Type != "" || arg.Severity != "" {
+		sb.WriteString(" WHERE")
+		if arg.Search != "" {
+			sb.WriteString(" description LIKE '%")
+			sb.WriteString(arg.Search)
+			sb.WriteString("%'")
+		}
+
+		var stmts []string
+		if arg.Type != "" {
+			stmts = append(stmts, " type = '"+arg.Type+"'")
+		}
+		if arg.Severity != "" {
+			stmts = append(stmts, " severity = '"+arg.Severity+"'")
+		}
+		if arg.Search != "" && len(stmts) > 0 {
+			sb.WriteString(" AND ")
+		}
+		sb.WriteString(strings.Join(stmts, " AND "))
+	}
+
+	sb.WriteString(" ORDER BY created_at DESC")
+	if arg.Page > 0 {
+		offset := (arg.Page - 1) * arg.Limit
+		sb.WriteString(" LIMIT ")
+		sb.WriteString(strconv.Itoa(arg.Limit))
+		sb.WriteString(" ")
+		sb.WriteString(" OFFSET ")
+		sb.WriteString(strconv.Itoa(offset))
+	}
+
+	rows, err := q.db.QueryContext(ctx, sb.String())
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var events []evntDto.EventResponse
+	for rows.Next() {
+		var event evntDto.EventResponse
+		var createdAt sql.NullTime
+		err := rows.Scan(
+			&event.Id,
+			&createdAt,
+			&event.Type,
+			&event.Description,
+			&event.Severity,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+		event.CreatedAt = createdAt.Time.Format(time.RFC3339)
+		events = append(events, event)
+	}
+
+	return events, nil
+}
+
+func (q *Queries) CountEvents(ctx context.Context, arg queryParams.EventQueryParams) (int64, error) {
+	var sb strings.Builder
+	sb.WriteString("SELECT count(*) FROM events")
+	if arg.Search != "" || arg.Type != "" || arg.Severity != "" {
+		sb.WriteString(" WHERE")
+		if arg.Search != "" {
+			sb.WriteString(" description LIKE '%")
+			sb.WriteString(arg.Search)
+			sb.WriteString("%'")
+		}
+
+		var stmts []string
+		if arg.Type != "" {
+			stmts = append(stmts, " type = '"+arg.Type+"'")
+		}
+		if arg.Severity != "" {
+			stmts = append(stmts, " severity = '"+arg.Severity+"'")
+		}
+		if arg.Search != "" && len(stmts) > 0 {
+			sb.WriteString(" AND ")
+		}
+		sb.WriteString(strings.Join(stmts, " AND "))
+	}
+
+	row := q.db.QueryRowContext(ctx, sb.String())
+
+	var count int64
+	err := row.Scan(&count)
+
+	return count, err
 }

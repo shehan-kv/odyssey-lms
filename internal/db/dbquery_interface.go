@@ -5,12 +5,14 @@ import (
 
 	"odyssey.lms/internal/db/models"
 	"odyssey.lms/internal/db/params"
-	dto "odyssey.lms/internal/dto/user"
+	evntDto "odyssey.lms/internal/dto/event"
+	queryParams "odyssey.lms/internal/dto/params"
+	usrDto "odyssey.lms/internal/dto/user"
 )
 
 type DBQuery interface {
 	FindUserWithPasswordByEmail(ctx context.Context, email string) (models.User, error)
-	GetUsers(ctx context.Context, params params.UserQueryParams) ([]dto.UserResponse, error)
+	GetUsers(ctx context.Context, params params.UserQueryParams) ([]usrDto.UserResponse, error)
 	FindUserById(ctx context.Context, userId int) (models.User, error)
 	CreateUser(ctx context.Context, arg params.CreateUser) (int64, error)
 	CountUsersByRole(ctx context.Context, role string) (int64, error)
@@ -22,4 +24,7 @@ type DBQuery interface {
 	GetRoles(ctx context.Context) ([]models.Role, error)
 	FindRoleById(ctx context.Context, roleId int64) (models.Role, error)
 	AssignUserRole(ctx context.Context, arg params.AssignUserRole) error
+	CreateEvent(ctx context.Context, arg params.CreateEvent) error
+	GetEvents(ctx context.Context, arg queryParams.EventQueryParams) ([]evntDto.EventResponse, error)
+	CountEvents(ctx context.Context, arg queryParams.EventQueryParams) (int64, error)
 }

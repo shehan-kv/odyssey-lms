@@ -8,24 +8,19 @@ import (
 	"odyssey.lms/internal/auth"
 	"odyssey.lms/internal/db"
 	"odyssey.lms/internal/db/params"
+	queryParams "odyssey.lms/internal/dto/params"
 	dto "odyssey.lms/internal/dto/user"
 )
 
-func GetUsers(ctx context.Context, page int, limit int, search string, role string) (dto.UsersResponse, error) {
+func GetUsers(ctx context.Context, args queryParams.UserQueryParams) (dto.UsersResponse, error) {
 
 	var resp dto.UsersResponse
-	params := params.UserQueryParams{
-		Page:   page,
-		Limit:  limit,
-		Search: search,
-		Role:   role,
-	}
-	users, err := db.QUERY.GetUsers(ctx, params)
+	users, err := db.QUERY.GetUsers(ctx, args)
 	if err != nil {
 		return resp, err
 	}
 
-	userCount, err := db.QUERY.CountUsers(ctx, params)
+	userCount, err := db.QUERY.CountUsers(ctx, args)
 	if err != nil {
 		return resp, err
 	}

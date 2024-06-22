@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	queryParams "odyssey.lms/internal/dto/params"
 	dto "odyssey.lms/internal/dto/user"
 	"odyssey.lms/internal/service"
 )
@@ -41,7 +42,12 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 		limitNum = num
 	}
 
-	resp, err := service.GetUsers(r.Context(), pageNum, limitNum, search, role)
+	resp, err := service.GetUsers(r.Context(), queryParams.UserQueryParams{
+		Page:   pageNum,
+		Limit:  limitNum,
+		Search: search,
+		Role:   role,
+	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

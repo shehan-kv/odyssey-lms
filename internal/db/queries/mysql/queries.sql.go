@@ -38,7 +38,7 @@ func (q *Queries) FindUserWithPasswordByEmail(ctx context.Context, email string)
 
 }
 
-func (q *Queries) GetUsers(ctx context.Context, arg params.UserQueryParams) ([]usrDto.UserResponse, error) {
+func (q *Queries) GetUsers(ctx context.Context, arg queryParams.UserQueryParams) ([]usrDto.UserResponse, error) {
 	var sb strings.Builder
 	sb.WriteString("SELECT u.id, u.first_name, u.last_name, u.email, u.created_at, u.last_login, u.is_active, r.name FROM users u")
 	sb.WriteString(" JOIN roles r ON u.role = r.id")
@@ -168,7 +168,7 @@ func (q *Queries) CountUsersByRole(ctx context.Context, role string) (int64, err
 	return userCount, err
 }
 
-func (q *Queries) CountUsers(ctx context.Context, arg params.UserQueryParams) (int64, error) {
+func (q *Queries) CountUsers(ctx context.Context, arg queryParams.UserQueryParams) (int64, error) {
 
 	var sb strings.Builder
 	sb.WriteString("SELECT count(*) FROM users u")

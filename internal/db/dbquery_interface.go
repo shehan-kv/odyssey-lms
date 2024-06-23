@@ -13,7 +13,7 @@ import (
 type DBQuery interface {
 	FindUserWithPasswordByEmail(ctx context.Context, email string) (models.User, error)
 	GetUsers(ctx context.Context, params queryParams.UserQueryParams) ([]usrDto.UserResponse, error)
-	FindUserById(ctx context.Context, userId int) (models.User, error)
+	FindUserById(ctx context.Context, userId int64) (models.User, error)
 	CreateUser(ctx context.Context, arg params.CreateUser) (int64, error)
 	CountUsersByRole(ctx context.Context, role string) (int64, error)
 	CountUsers(ctx context.Context, arg queryParams.UserQueryParams) (int64, error)
@@ -27,4 +27,5 @@ type DBQuery interface {
 	CreateEvent(ctx context.Context, arg params.CreateEvent) error
 	GetEvents(ctx context.Context, arg queryParams.EventQueryParams) ([]evntDto.EventResponse, error)
 	CountEvents(ctx context.Context, arg queryParams.EventQueryParams) (int64, error)
+	CreateTicket(ctx context.Context, arg params.CreateTicket) error
 }

@@ -110,7 +110,7 @@ func (q *Queries) GetUsers(ctx context.Context, arg queryParams.UserQueryParams)
 	return users, nil
 }
 
-func (q *Queries) FindUserById(ctx context.Context, userId int) (models.User, error) {
+func (q *Queries) FindUserById(ctx context.Context, userId int64) (models.User, error) {
 	const query = `SELECT id, first_name, last_name, email, created_at, last_login, is_active, role FROM users
 	WHERE id = $1
 	`
@@ -379,4 +379,11 @@ func (q *Queries) CountEvents(ctx context.Context, arg queryParams.EventQueryPar
 	err := row.Scan(&count)
 
 	return count, err
+}
+
+func (q *Queries) CreateTicket(ctx context.Context, arg params.CreateTicket) error {
+	const query = "INSERT INTO tickets(subject, description, user_id, type, status) VALUES($1, $2, $3, $4, $5)"
+	_, err := q.db.ExecContext(ctx, query, arg.Subject, arg.Description, arg.UserId, arg.Type, arg.Status)
+
+	return err
 }

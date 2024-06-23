@@ -34,6 +34,8 @@ func RunApplication() {
 
 	http.HandleFunc("GET /api/event", handler.GetEvents)
 
+	http.Handle("POST /api/support-ticket", middleware.Authed(http.HandlerFunc(handler.CreateSupportTicket)))
+
 	http.HandleFunc("GET /api/system", handler.GetSystemInfo)
 
 	staticUiFs, _ := fs.Sub(web.WebUiFS, "ui/build")

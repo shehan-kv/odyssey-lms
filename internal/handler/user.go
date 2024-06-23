@@ -88,7 +88,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
-	userId, err := strconv.Atoi(r.PathValue("id"))
+	userId, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -114,7 +114,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func ActivateUser(w http.ResponseWriter, r *http.Request) {
-	userId, err := strconv.Atoi(r.PathValue("id"))
+	userId, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -136,7 +136,7 @@ func ActivateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeactivateUser(w http.ResponseWriter, r *http.Request) {
-	userId, err := strconv.Atoi(r.PathValue("id"))
+	userId, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

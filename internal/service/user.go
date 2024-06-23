@@ -86,7 +86,7 @@ func CreateUser(ctx context.Context, createReq dto.UserCreateRequest) error {
 
 var ErrLastAdminDeletion = errors.New("last admin account cannot be deleted")
 
-func DeleteUser(ctx context.Context, userId int) error {
+func DeleteUser(ctx context.Context, userId int64) error {
 
 	existingUser, err := db.QUERY.FindUserById(ctx, userId)
 	if err != nil {
@@ -116,7 +116,7 @@ func DeleteUser(ctx context.Context, userId int) error {
 	return err
 }
 
-func ActivateUser(ctx context.Context, userId int) error {
+func ActivateUser(ctx context.Context, userId int64) error {
 	_, err := db.QUERY.FindUserById(ctx, userId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -129,7 +129,7 @@ func ActivateUser(ctx context.Context, userId int) error {
 	return err
 }
 
-func DeactivateUser(ctx context.Context, userId int) error {
+func DeactivateUser(ctx context.Context, userId int64) error {
 	existingUser, err := db.QUERY.FindUserById(ctx, userId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

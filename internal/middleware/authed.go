@@ -1,10 +1,16 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
+	"strconv"
 
 	"odyssey.lms/internal/auth"
 )
+
+type key string
+
+const USER_ID key = "user-id"
 
 func Authed(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -27,7 +33,14 @@ func Authed(next http.Handler) http.Handler {
 			return
 		}
 
-		r.Header.Set("subject", subject)
-		next.ServeHTTP(w, r)
+		userId, err := strconv.Atoi(subject)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), USER_ID, int64(userId))
+		req := r.WithContext(ctx)
+		next.ServeHTTP(w, req)
 	})
 }

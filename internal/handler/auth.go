@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 
-	"odyssey.lms/internal/auth"
 	dto "odyssey.lms/internal/dto/auth"
 	"odyssey.lms/internal/service"
 )
@@ -65,23 +64,6 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func IsSignedIn(w http.ResponseWriter, r *http.Request) {
-
-	authCookie, err := r.Cookie("auth-token")
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	if err := authCookie.Valid(); err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	_, err = auth.VerifyJWTToken(authCookie.Value)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
 
 	w.WriteHeader(http.StatusOK)
 }

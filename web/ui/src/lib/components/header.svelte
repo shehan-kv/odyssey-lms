@@ -1,9 +1,11 @@
 <script>
 	import { Bell, HelpCircle, Menu, MessageSquare, User } from 'lucide-svelte';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import Logo from './logo.svelte';
 	import ThemeToggle from './themeToggle.svelte';
 	import Button from './ui/button/button.svelte';
 	import { createEventDispatcher } from 'svelte';
+	import { goto } from '$app/navigation';
 
 	let dispatch = createEventDispatcher();
 </script>
@@ -23,11 +25,17 @@
 		<ThemeToggle
 			class="p-0 bg-transparent h-fit text-neutral-950 dark:text-neutral-100 w-5 hover:bg-transparent"
 		/>
-		<Button
-			class="p-0 bg-transparent h-fit text-neutral-950 dark:text-neutral-100 w-5 hover:bg-transparent"
-		>
-			<HelpCircle />
-		</Button>
+		<DropdownMenu.Root>
+			<DropdownMenu.Trigger><HelpCircle size={20} /></DropdownMenu.Trigger>
+			<DropdownMenu.Content>
+				<DropdownMenu.Item class="text-xs" on:click={() => goto('/my-support-tickets')}>
+					My Support Tickets
+				</DropdownMenu.Item>
+				<DropdownMenu.Item class="text-xs" on:click={() => dispatch('newTicket')}>
+					New Support Ticket
+				</DropdownMenu.Item>
+			</DropdownMenu.Content>
+		</DropdownMenu.Root>
 		<Button
 			class="p-0 bg-transparent h-fit text-neutral-950 dark:text-neutral-100 w-5 hover:bg-transparent"
 		>

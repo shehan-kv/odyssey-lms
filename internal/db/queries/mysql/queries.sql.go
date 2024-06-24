@@ -73,14 +73,15 @@ func (q *Queries) GetUsers(ctx context.Context, arg queryParams.UserQueryParams)
 		sb.WriteString(strconv.Itoa(offset))
 	}
 
+	var users = make([]usrDto.UserResponse, 0)
+
 	rows, err := q.db.QueryContext(ctx, sb.String())
 	if err != nil {
-		return nil, err
+		return users, err
 	}
 
 	defer rows.Close()
 
-	var users []usrDto.UserResponse
 	for rows.Next() {
 		var user usrDto.UserResponse
 		var createdAt sql.NullTime
@@ -97,7 +98,7 @@ func (q *Queries) GetUsers(ctx context.Context, arg queryParams.UserQueryParams)
 		)
 
 		if err != nil {
-			return nil, err
+			return users, err
 		}
 
 		if createdAt.Valid {
@@ -253,12 +254,12 @@ func (q *Queries) CountRoles(ctx context.Context) (int64, error) {
 
 func (q *Queries) GetRoles(ctx context.Context) ([]models.Role, error) {
 
-	var roles []models.Role
+	var roles = make([]models.Role, 0)
 
 	const query = "SELECT * FROM roles"
 	rows, err := q.db.QueryContext(ctx, query)
 	if err != nil {
-		return nil, err
+		return roles, err
 	}
 
 	defer rows.Close()
@@ -267,7 +268,7 @@ func (q *Queries) GetRoles(ctx context.Context) ([]models.Role, error) {
 		var role models.Role
 		err := rows.Scan(&role.ID, &role.Name, &role.IsDefault)
 		if err != nil {
-			return nil, err
+			return roles, err
 		}
 
 		roles = append(roles, role)
@@ -335,14 +336,15 @@ func (q *Queries) GetEvents(ctx context.Context, arg queryParams.EventQueryParam
 		sb.WriteString(strconv.Itoa(offset))
 	}
 
+	var events = make([]evntDto.EventResponse, 0)
+
 	rows, err := q.db.QueryContext(ctx, sb.String())
 	if err != nil {
-		return nil, err
+		return events, err
 	}
 
 	defer rows.Close()
 
-	var events []evntDto.EventResponse
 	for rows.Next() {
 		var event evntDto.EventResponse
 		var createdAt sql.NullTime
@@ -355,7 +357,7 @@ func (q *Queries) GetEvents(ctx context.Context, arg queryParams.EventQueryParam
 		)
 
 		if err != nil {
-			return nil, err
+			return events, err
 		}
 		event.CreatedAt = createdAt.Time.Format(time.RFC3339)
 		events = append(events, event)

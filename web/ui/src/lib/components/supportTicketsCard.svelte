@@ -10,12 +10,14 @@
 
 	/**
 	 * @type {{
-	 * 	timestamp: number,
-	 *  category: string,
+	 * totalCount: number,
+	 * tickets:{
+	 * 	createdAt: number,
+	 *  type: string,
 	 *  subject: string,
-	 *  submitted: string,
+	 *  user: string,
 	 *  status: string,
-	 * }[]}
+	 * }[]}}
 	 */
 	let data;
 
@@ -23,7 +25,7 @@
 		loading = true;
 		fetchError = false;
 
-		fetch('/api/support-ticket/recent')
+		fetch('/api/support-ticket?limit=6')
 			.then((response) => {
 				if (response.status != 200) {
 					fetchError = true;
@@ -62,13 +64,13 @@
 			<p>Support Tickets</p>
 		</div>
 
-		{#if !fetchError && (!data || data.length == 0)}
+		{#if !fetchError && (!data || data.tickets.length == 0)}
 			<p class="text-sm text-center text-neutral-400 dark:text-neutral-600">
 				No Recent Support Tickets Found
 			</p>
 		{/if}
 
-		{#if data && data.length > 0}
+		{#if data && data.tickets.length > 0}
 			<Table.Root class="text-xs">
 				<Table.Header>
 					<Table.Row class="hover:bg-transparent">
@@ -80,12 +82,14 @@
 					</Table.Row>
 				</Table.Header>
 				<Table.Body>
-					{#each data as ticket}
+					{#each data.tickets as ticket}
 						<Table.Row>
-							<Table.Cell>{new Date(ticket.timestamp).toLocaleString()}</Table.Cell>
-							<Table.Cell>{ticket.category}</Table.Cell>
+							<Table.Cell>
+								{ticket.createdAt ? new Date(ticket.createdAt).toLocaleString() : 'Not Found'}
+							</Table.Cell>
+							<Table.Cell class="capitalize">{ticket.type}</Table.Cell>
 							<Table.Cell>{ticket.subject}</Table.Cell>
-							<Table.Cell>{ticket.submitted}</Table.Cell>
+							<Table.Cell>{ticket.user}</Table.Cell>
 							<Table.Cell>
 								<span class="flex justify-end items-center gap-2">
 									{#if ticket.status == 'unresolved'}
@@ -93,8 +97,8 @@
 									{:else if ticket.status == 'resolved'}
 										Resolved <span><CircleCheck size={16} /></span>
 									{/if}
-								</span></Table.Cell
-							>
+								</span>
+							</Table.Cell>
 						</Table.Row>
 					{/each}
 				</Table.Body>

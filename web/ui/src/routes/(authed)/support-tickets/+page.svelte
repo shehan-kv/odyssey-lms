@@ -24,9 +24,8 @@
 
 	let status = [
 		{ value: '', label: 'All Status' },
-		{ value: 'info', label: 'Informational' },
-		{ value: 'warning', label: 'Warning' },
-		{ value: 'critical', label: 'Critical' }
+		{ value: 'resolved', label: 'Resolved' },
+		{ value: 'unresolved', label: 'Unresolved' },
 	];
 
 	let searchTextTemp = query.get('search') || ''; // search text variable to bind to the input
@@ -67,10 +66,10 @@
 	 * 	totalCount: number,
 	 * 	tickets: {
 	 *  id: number,
-	 * 	timestamp: number,
+	 * 	createdAt: number,
 	 * 	type: string,
 	 * 	subject: string,
-	 * 	submitted: string,
+	 * 	user: string,
 	 * 	status: string,
 	 * }[]}}
 	 */
@@ -157,8 +156,8 @@
 				</Select.Trigger>
 				<Select.Content>
 					<Select.Item class="pr-2" value="">All Status</Select.Item>
-					<Select.Item class="pr-2" value="info">Resolved</Select.Item>
-					<Select.Item class="pr-2" value="warning">Unresolved</Select.Item>
+					<Select.Item class="pr-2" value="resolved">Resolved</Select.Item>
+					<Select.Item class="pr-2" value="unresolved">Unresolved</Select.Item>
 				</Select.Content>
 			</Select.Root>
 		</div>
@@ -176,7 +175,7 @@
 				<Table.Row class="hover:bg-transparent">
 					<Table.Head class="font-semibold">Timestamp</Table.Head>
 					<Table.Head class="font-semibold">Type</Table.Head>
-					<Table.Head class="font-semibold">Description</Table.Head>
+					<Table.Head class="font-semibold">Subject</Table.Head>
 					<Table.Head class="font-semibold">User</Table.Head>
 					<Table.Head class="font-semibold text-right">Severity</Table.Head>
 				</Table.Row>
@@ -184,10 +183,12 @@
 			<Table.Body>
 				{#each data.tickets as ticket}
 					<Table.Row>
-						<Table.Cell>{new Date(ticket.timestamp).toLocaleString()}</Table.Cell>
-						<Table.Cell>{ticket.type}</Table.Cell>
+						<Table.Cell>
+							{ticket.createdAt ? new Date(ticket.createdAt).toLocaleString() : 'Not Found'}
+						</Table.Cell>
+						<Table.Cell class="capitalize">{ticket.type}</Table.Cell>
 						<Table.Cell>{ticket.subject}</Table.Cell>
-						<Table.Cell>{ticket.submitted}</Table.Cell>
+						<Table.Cell>{ticket.user}</Table.Cell>
 						<Table.Cell>
 							{#if ticket.status == 'resolved'}
 								<span class="flex justify-end items-center gap-2">

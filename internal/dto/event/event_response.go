@@ -1,4 +1,4 @@
-package event
+package dto
 
 type EventResponse struct {
 	Id          int64  `json:"id"`

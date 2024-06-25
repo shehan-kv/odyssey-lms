@@ -1,4 +1,4 @@
-package params
+package dto
 
 type UserQueryParams struct {
 	Search string

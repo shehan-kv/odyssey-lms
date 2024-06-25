@@ -7,6 +7,7 @@ import (
 	"odyssey.lms/internal/db/params"
 	evntDto "odyssey.lms/internal/dto/event"
 	queryParams "odyssey.lms/internal/dto/params"
+	ticketDto "odyssey.lms/internal/dto/ticket"
 	usrDto "odyssey.lms/internal/dto/user"
 )
 
@@ -28,4 +29,6 @@ type DBQuery interface {
 	GetEvents(ctx context.Context, arg queryParams.EventQueryParams) ([]evntDto.EventResponse, error)
 	CountEvents(ctx context.Context, arg queryParams.EventQueryParams) (int64, error)
 	CreateTicket(ctx context.Context, arg params.CreateTicket) error
+	GetTickets(ctx context.Context, arg queryParams.TicketQueryParams) ([]ticketDto.TicketResponse, error)
+	CountTickets(ctx context.Context, arg queryParams.TicketQueryParams) (int64, error)
 }

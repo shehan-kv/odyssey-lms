@@ -11,6 +11,7 @@ import (
 	"odyssey.lms/internal/db/params"
 	evntDto "odyssey.lms/internal/dto/event"
 	queryParams "odyssey.lms/internal/dto/params"
+	ticketDto "odyssey.lms/internal/dto/ticket"
 	usrDto "odyssey.lms/internal/dto/user"
 )
 
@@ -403,4 +404,102 @@ func (q *Queries) CreateTicket(ctx context.Context, arg params.CreateTicket) err
 	_, err := q.db.ExecContext(ctx, query, arg.Subject, arg.Description, arg.UserId, arg.Type, arg.Status)
 
 	return err
+}
+
+func (q *Queries) GetTickets(ctx context.Context, arg queryParams.TicketQueryParams) ([]ticketDto.TicketResponse, error) {
+	var sb strings.Builder
+	sb.WriteString("SELECT t.id, t.subject, CONCAT(u.first_name, ' ', u.last_name) AS user,  t.created_at, t.type, t.status FROM tickets t")
+	sb.WriteString(" JOIN users u ON t.user_id = u.id")
+	if arg.Search != "" || arg.Type != "" || arg.Status != "" {
+		sb.WriteString(" WHERE")
+		if arg.Search != "" {
+			sb.WriteString(" t.subject LIKE '%")
+			sb.WriteString(arg.Search)
+			sb.WriteString("%'")
+		}
+
+		var stmts []string
+		if arg.Type != "" {
+			stmts = append(stmts, " t.type = '"+arg.Type+"'")
+		}
+		if arg.Status != "" {
+			stmts = append(stmts, " t.status = '"+arg.Status+"'")
+		}
+		if arg.Search != "" && len(stmts) > 0 {
+			sb.WriteString(" AND ")
+		}
+		sb.WriteString(strings.Join(stmts, " AND "))
+	}
+
+	sb.WriteString(" ORDER BY t.created_at DESC")
+	if arg.Page > 0 {
+		offset := (arg.Page - 1) * arg.Limit
+		sb.WriteString(" LIMIT ")
+		sb.WriteString(strconv.Itoa(arg.Limit))
+		sb.WriteString(" ")
+		sb.WriteString(" OFFSET ")
+		sb.WriteString(strconv.Itoa(offset))
+	}
+
+	var tickets = make([]ticketDto.TicketResponse, 0)
+
+	rows, err := q.db.QueryContext(ctx, sb.String())
+	if err != nil {
+		return tickets, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var ticket ticketDto.TicketResponse
+		var createdAt sql.NullTime
+		err := rows.Scan(
+			&ticket.Id,
+			&ticket.Subject,
+			&ticket.User,
+			&createdAt,
+			&ticket.Type,
+			&ticket.Status,
+		)
+
+		if err != nil {
+			return tickets, err
+		}
+		ticket.CreatedAt = createdAt.Time.Format(time.RFC3339)
+		tickets = append(tickets, ticket)
+	}
+
+	return tickets, nil
+}
+
+func (q *Queries) CountTickets(ctx context.Context, arg queryParams.TicketQueryParams) (int64, error) {
+	var sb strings.Builder
+	sb.WriteString("SELECT count(*) FROM tickets")
+	if arg.Search != "" || arg.Type != "" || arg.Status != "" {
+		sb.WriteString(" WHERE")
+		if arg.Search != "" {
+			sb.WriteString(" subject LIKE '%")
+			sb.WriteString(arg.Search)
+			sb.WriteString("%'")
+		}
+
+		var stmts []string
+		if arg.Type != "" {
+			stmts = append(stmts, " type = '"+arg.Type+"'")
+		}
+		if arg.Status != "" {
+			stmts = append(stmts, " status = '"+arg.Status+"'")
+		}
+		if arg.Search != "" && len(stmts) > 0 {
+			sb.WriteString(" AND ")
+		}
+		sb.WriteString(strings.Join(stmts, " AND "))
+	}
+
+	row := q.db.QueryRowContext(ctx, sb.String())
+
+	var count int64
+	err := row.Scan(&count)
+
+	return count, err
 }

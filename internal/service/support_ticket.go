@@ -3,9 +3,11 @@ package service
 import (
 	"context"
 	"errors"
+	"log"
 
 	"odyssey.lms/internal/db"
 	"odyssey.lms/internal/db/params"
+	queryParams "odyssey.lms/internal/dto/params"
 	dto "odyssey.lms/internal/dto/ticket"
 	"odyssey.lms/internal/middleware"
 )
@@ -29,4 +31,24 @@ func CreateSupportTicket(ctx context.Context, args dto.TicketCreateRequest) erro
 	})
 
 	return err
+}
+
+func GetSupportTickets(ctx context.Context, args queryParams.TicketQueryParams) (dto.TicketsResponse, error) {
+
+	var ticketsRsp dto.TicketsResponse
+	tickets, err := db.QUERY.GetTickets(ctx, args)
+	if err != nil {
+		log.Println(err)
+		return ticketsRsp, err
+	}
+
+	ticketsCount, err := db.QUERY.CountTickets(ctx, args)
+	if err != nil {
+		return ticketsRsp, err
+	}
+
+	ticketsRsp.TotalCount = ticketsCount
+	ticketsRsp.Tickets = tickets
+
+	return ticketsRsp, nil
 }

@@ -81,3 +81,51 @@ func GetSupportTickets(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(&ticketRsp)
 }
+
+func GetSupportTicketsSelf(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	page := query.Get("page")
+	limit := query.Get("limit")
+	search := query.Get("search")
+	ticketType := query.Get("type")
+	status := query.Get("status")
+
+	var pageNum int
+	if page == "" {
+		pageNum = 1
+	} else {
+		num, err := strconv.Atoi(page)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		pageNum = num
+	}
+
+	var limitNum int
+	if limit == "" {
+		limitNum = 30
+	} else {
+		num, err := strconv.Atoi(limit)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		limitNum = num
+	}
+
+	ticketRsp, err := service.GetSupportTicketsSelf(r.Context(), queryParams.TicketQueryParams{
+		Search: search,
+		Page:   pageNum,
+		Limit:  limitNum,
+		Type:   ticketType,
+		Status: status,
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(&ticketRsp)
+}

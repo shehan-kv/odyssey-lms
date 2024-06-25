@@ -35,6 +35,7 @@ func RunApplication() {
 	http.HandleFunc("GET /api/event", handler.GetEvents)
 
 	http.Handle("GET /api/support-ticket", middleware.Authed(http.HandlerFunc(handler.GetSupportTickets)))
+	http.Handle("GET /api/support-ticket/self", middleware.Authed(http.HandlerFunc(handler.GetSupportTicketsSelf)))
 	http.Handle("POST /api/support-ticket", middleware.Authed(http.HandlerFunc(handler.CreateSupportTicket)))
 
 	http.HandleFunc("GET /api/system", handler.GetSystemInfo)

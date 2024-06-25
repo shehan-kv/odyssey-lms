@@ -52,3 +52,32 @@ func GetSupportTickets(ctx context.Context, args queryParams.TicketQueryParams) 
 
 	return ticketsRsp, nil
 }
+
+func GetSupportTicketsSelf(ctx context.Context, args queryParams.TicketQueryParams) (dto.TicketsResponse, error) {
+	var ticketsRsp dto.TicketsResponse
+
+	userId, ok := ctx.Value(middleware.USER_ID).(int64)
+	if !ok {
+		return ticketsRsp, errors.New("could not get user-id from context")
+	}
+	_, err := db.QUERY.FindUserById(ctx, userId)
+	if err != nil {
+		return ticketsRsp, ErrUserNotFound
+	}
+
+	tickets, err := db.QUERY.GetTicketsByUserId(ctx, userId, args)
+	if err != nil {
+		log.Println(err)
+		return ticketsRsp, err
+	}
+
+	ticketsCount, err := db.QUERY.CountTicketsByUserId(ctx, userId, args)
+	if err != nil {
+		return ticketsRsp, err
+	}
+
+	ticketsRsp.TotalCount = ticketsCount
+	ticketsRsp.Tickets = tickets
+
+	return ticketsRsp, nil
+}

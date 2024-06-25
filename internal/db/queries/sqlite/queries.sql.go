@@ -488,3 +488,103 @@ func (q *Queries) CountTickets(ctx context.Context, arg queryParams.TicketQueryP
 
 	return count, err
 }
+
+func (q *Queries) GetTicketsByUserId(ctx context.Context, userId int64, arg queryParams.TicketQueryParams) ([]ticketDto.TicketResponse, error) {
+	var sb strings.Builder
+	sb.WriteString("SELECT t.id, t.subject, u.first_name || ' ' || u.last_name AS user, t.created_at, t.type, t.status FROM tickets t")
+	sb.WriteString(" JOIN users u ON t.user_id = u.id")
+	sb.WriteString(" WHERE u.id = ?")
+	if arg.Search != "" || arg.Type != "" || arg.Status != "" {
+		sb.WriteString(" AND")
+		if arg.Search != "" {
+			sb.WriteString(" t.subject LIKE '%")
+			sb.WriteString(arg.Search)
+			sb.WriteString("%'")
+		}
+
+		var stmts []string
+		if arg.Type != "" {
+			stmts = append(stmts, " t.type = '"+arg.Type+"'")
+		}
+		if arg.Status != "" {
+			stmts = append(stmts, " t.status = '"+arg.Status+"'")
+		}
+		if arg.Search != "" && len(stmts) > 0 {
+			sb.WriteString(" AND ")
+		}
+		sb.WriteString(strings.Join(stmts, " AND "))
+	}
+
+	sb.WriteString(" ORDER BY t.created_at DESC")
+	if arg.Page > 0 {
+		offset := (arg.Page - 1) * arg.Limit
+		sb.WriteString(" LIMIT ")
+		sb.WriteString(strconv.Itoa(arg.Limit))
+		sb.WriteString(" ")
+		sb.WriteString(" OFFSET ")
+		sb.WriteString(strconv.Itoa(offset))
+	}
+
+	var tickets = make([]ticketDto.TicketResponse, 0)
+
+	rows, err := q.db.QueryContext(ctx, sb.String(), userId)
+	if err != nil {
+		return tickets, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var ticket ticketDto.TicketResponse
+		var createdAt sql.NullTime
+		err := rows.Scan(
+			&ticket.Id,
+			&ticket.Subject,
+			&ticket.User,
+			&createdAt,
+			&ticket.Type,
+			&ticket.Status,
+		)
+
+		if err != nil {
+			return tickets, err
+		}
+		ticket.CreatedAt = createdAt.Time.Format(time.RFC3339)
+		tickets = append(tickets, ticket)
+	}
+
+	return tickets, nil
+}
+
+func (q *Queries) CountTicketsByUserId(ctx context.Context, userId int64, arg queryParams.TicketQueryParams) (int64, error) {
+	var sb strings.Builder
+	sb.WriteString("SELECT count(*) FROM tickets")
+	sb.WriteString(" WHERE user_id = ?")
+	if arg.Search != "" || arg.Type != "" || arg.Status != "" {
+		sb.WriteString(" AND")
+		if arg.Search != "" {
+			sb.WriteString(" subject LIKE '%")
+			sb.WriteString(arg.Search)
+			sb.WriteString("%'")
+		}
+
+		var stmts []string
+		if arg.Type != "" {
+			stmts = append(stmts, " type = '"+arg.Type+"'")
+		}
+		if arg.Status != "" {
+			stmts = append(stmts, " status = '"+arg.Status+"'")
+		}
+		if arg.Search != "" && len(stmts) > 0 {
+			sb.WriteString(" AND ")
+		}
+		sb.WriteString(strings.Join(stmts, " AND "))
+	}
+
+	row := q.db.QueryRowContext(ctx, sb.String(), userId)
+
+	var count int64
+	err := row.Scan(&count)
+
+	return count, err
+}

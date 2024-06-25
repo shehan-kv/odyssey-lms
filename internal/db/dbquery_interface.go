@@ -31,4 +31,6 @@ type DBQuery interface {
 	CreateTicket(ctx context.Context, arg params.CreateTicket) error
 	GetTickets(ctx context.Context, arg queryParams.TicketQueryParams) ([]ticketDto.TicketResponse, error)
 	CountTickets(ctx context.Context, arg queryParams.TicketQueryParams) (int64, error)
+	GetTicketsByUserId(ctx context.Context, userId int64, arg queryParams.TicketQueryParams) ([]ticketDto.TicketResponse, error)
+	CountTicketsByUserId(ctx context.Context, userId int64, arg queryParams.TicketQueryParams) (int64, error)
 }

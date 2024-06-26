@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -128,4 +129,82 @@ func GetSupportTicketsSelf(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(&ticketRsp)
+}
+
+func GetSupportTicketById(w http.ResponseWriter, r *http.Request) {
+	pathId := r.PathValue("id")
+
+	ticketId, err := strconv.ParseInt(pathId, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	ticketRsp, err := service.GetSupportTicketById(r.Context(), ticketId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(&ticketRsp)
+}
+
+func CreateSupportTicketMessage(w http.ResponseWriter, r *http.Request) {
+	pathId := r.PathValue("id")
+
+	ticketId, err := strconv.ParseInt(pathId, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	var createReq dto.TicketMessageCreateRequest
+
+	err = json.NewDecoder(r.Body).Decode(&createReq)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = createReq.Validate()
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = service.CreateSupportTicketMessage(r.Context(), ticketId, createReq)
+	if err != nil {
+		if errors.Is(err, service.ErrNotAllowed) {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}
+
+func ResolveTicket(w http.ResponseWriter, r *http.Request) {
+	pathId := r.PathValue("id")
+
+	ticketId, err := strconv.ParseInt(pathId, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	err = service.ResolveTicket(r.Context(), ticketId)
+	if err != nil {
+		if errors.Is(err, service.ErrTicketNotFound) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

@@ -81,3 +81,76 @@ func GetSupportTicketsSelf(ctx context.Context, args queryParams.TicketQueryPara
 
 	return ticketsRsp, nil
 }
+
+func GetSupportTicketById(ctx context.Context, ticketId int64) (dto.TicketMessagesResponse, error) {
+	var ticketRsp dto.TicketMessagesResponse
+
+	tickets, err := db.QUERY.GetTicketByIdWithUser(ctx, ticketId)
+	if err != nil {
+		return ticketRsp, err
+	}
+
+	messages, err := db.QUERY.GetTicketMessagesByTicketId(ctx, ticketId)
+	if err != nil {
+		return ticketRsp, err
+	}
+
+	ticketRsp.Ticket = tickets
+	ticketRsp.Messages = messages
+
+	return ticketRsp, nil
+}
+
+var ErrRoleNotFound = errors.New("role not found")
+var ErrTicketNotFound = errors.New("ticket not found")
+var ErrNotAllowed = errors.New("not allowed")
+var ErrTicketAlreadyClosed = errors.New("ticket already closed")
+
+func CreateSupportTicketMessage(ctx context.Context, ticketId int64, args dto.TicketMessageCreateRequest) error {
+	userId, ok := ctx.Value(middleware.USER_ID).(int64)
+	if !ok {
+		return errors.New("could not get user-id from context")
+	}
+	user, err := db.QUERY.FindUserById(ctx, userId)
+	if err != nil {
+		return ErrUserNotFound
+	}
+
+	role, err := db.QUERY.FindRoleById(ctx, user.Role)
+	if err != nil {
+		return ErrRoleNotFound
+	}
+
+	ticket, err := db.QUERY.FindTicketById(ctx, ticketId)
+	if err != nil {
+		return ErrTicketNotFound
+	}
+
+	if ticket.Status == "resolved" {
+		return ErrTicketAlreadyClosed
+	}
+
+	if role.Name != "administrator" && ticket.UserId != userId {
+		return ErrNotAllowed
+	}
+
+	err = db.QUERY.CreateTicketMessage(ctx, params.CreateTicketMessage{
+		TicketId: ticketId,
+		UserId:   userId,
+		Content:  args.Message,
+	})
+
+	return err
+}
+
+func ResolveTicket(ctx context.Context, ticketId int64) error {
+
+	_, err := db.QUERY.FindTicketById(ctx, ticketId)
+	if err != nil {
+		return ErrTicketNotFound
+	}
+
+	err = db.QUERY.SetTicketStatus(ctx, "resolved", ticketId)
+
+	return err
+}

@@ -588,3 +588,109 @@ func (q *Queries) CountTicketsByUserId(ctx context.Context, userId int64, arg qu
 
 	return count, err
 }
+
+func (q *Queries) GetTicketByIdWithUser(ctx context.Context, ticketId int64) (ticketDto.TicketResponse, error) {
+	const query = `SELECT t.id, t.subject, t.description, u.first_name || ' ' || u.last_name AS user, t.type, t.created_at, t.closed_at, t.status FROM tickets t
+	JOIN users u ON u.id = t.user_id
+	WHERE t.id = ?
+	`
+
+	row := q.db.QueryRowContext(ctx, query, ticketId)
+
+	var ticketRsp ticketDto.TicketResponse
+	var createdAt sql.NullTime
+	var closedAt sql.NullTime
+	err := row.Scan(
+		&ticketRsp.Id,
+		&ticketRsp.Subject,
+		&ticketRsp.Description,
+		&ticketRsp.User,
+		&ticketRsp.Type,
+		&createdAt,
+		&closedAt,
+		&ticketRsp.Status,
+	)
+	if err != nil {
+		return ticketRsp, err
+	}
+
+	ticketRsp.CreatedAt = createdAt.Time.Format(time.RFC3339)
+
+	if closedAt.Valid {
+		ticketRsp.ClosedAt = closedAt.Time.Format(time.RFC3339)
+	}
+	return ticketRsp, nil
+}
+
+func (q *Queries) GetTicketMessagesByTicketId(ctx context.Context, ticketId int64) ([]ticketDto.TicketMessageResponse, error) {
+	const query = `SELECT m.id, u.first_name || ' ' || u.last_name user, m.created_at, m.content FROM ticket_messages m
+	JOIN users u ON u.id = m.user_id
+	WHERE m.ticket_id = ?
+	ORDER BY m.created_at ASC
+	`
+
+	var messages = make([]ticketDto.TicketMessageResponse, 0)
+
+	rows, err := q.db.QueryContext(ctx, query, ticketId)
+	if err != nil {
+		return messages, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var message ticketDto.TicketMessageResponse
+		var createdAt sql.NullTime
+		err := rows.Scan(
+			&message.Id,
+			&message.User,
+			&createdAt,
+			&message.Content,
+		)
+
+		if err != nil {
+			return messages, err
+		}
+		message.CreatedAt = createdAt.Time.Format(time.RFC3339)
+		messages = append(messages, message)
+	}
+
+	return messages, nil
+}
+
+func (q *Queries) FindTicketById(ctx context.Context, ticketId int64) (models.Ticket, error) {
+	const query = "SELECT * FROM tickets WHERE id = ?"
+
+	row := q.db.QueryRowContext(ctx, query, ticketId)
+
+	var ticketRsp models.Ticket
+	err := row.Scan(
+		&ticketRsp.Id,
+		&ticketRsp.Subject,
+		&ticketRsp.Description,
+		&ticketRsp.UserId,
+		&ticketRsp.Type,
+		&ticketRsp.CreatedAt,
+		&ticketRsp.ClosedAt,
+		&ticketRsp.Status,
+	)
+	if err != nil {
+		return ticketRsp, err
+	}
+
+	return ticketRsp, nil
+}
+
+func (q *Queries) CreateTicketMessage(ctx context.Context, args params.CreateTicketMessage) error {
+	const query = "INSERT INTO ticket_messages(ticket_id, user_id, content) VALUES (?, ?, ?)"
+	_, err := q.db.ExecContext(ctx, query, args.TicketId, args.UserId, args.Content)
+
+	return err
+}
+
+func (q *Queries) SetTicketStatus(ctx context.Context, status string, ticketId int64) error {
+	const query = "UPDATE tickets SET status = ?, closed_at = ? WHERE id = ?"
+	_, err := q.db.ExecContext(ctx, query, status, time.Now(), ticketId)
+
+	return err
+}

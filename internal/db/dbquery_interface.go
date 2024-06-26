@@ -33,4 +33,9 @@ type DBQuery interface {
 	CountTickets(ctx context.Context, arg queryParams.TicketQueryParams) (int64, error)
 	GetTicketsByUserId(ctx context.Context, userId int64, arg queryParams.TicketQueryParams) ([]ticketDto.TicketResponse, error)
 	CountTicketsByUserId(ctx context.Context, userId int64, arg queryParams.TicketQueryParams) (int64, error)
+	GetTicketByIdWithUser(ctx context.Context, ticketId int64) (ticketDto.TicketResponse, error)
+	GetTicketMessagesByTicketId(ctx context.Context, ticketId int64) ([]ticketDto.TicketMessageResponse, error)
+	FindTicketById(ctx context.Context, ticketId int64) (models.Ticket, error)
+	CreateTicketMessage(ctx context.Context, args params.CreateTicketMessage) error
+	SetTicketStatus(ctx context.Context, status string, ticketId int64) error
 }

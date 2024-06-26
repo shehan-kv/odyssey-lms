@@ -36,7 +36,10 @@ func RunApplication() {
 
 	http.Handle("GET /api/support-ticket", middleware.Authed(http.HandlerFunc(handler.GetSupportTickets)))
 	http.Handle("GET /api/support-ticket/self", middleware.Authed(http.HandlerFunc(handler.GetSupportTicketsSelf)))
+	http.Handle("GET /api/support-ticket/{id}", middleware.Authed(http.HandlerFunc(handler.GetSupportTicketById)))
 	http.Handle("POST /api/support-ticket", middleware.Authed(http.HandlerFunc(handler.CreateSupportTicket)))
+	http.Handle("POST /api/support-ticket/{id}/message", middleware.Authed(http.HandlerFunc(handler.CreateSupportTicketMessage)))
+	http.Handle("POST /api/support-ticket/{id}/resolve", middleware.Authed(http.HandlerFunc(handler.ResolveTicket)))
 
 	http.HandleFunc("GET /api/system", handler.GetSystemInfo)
 

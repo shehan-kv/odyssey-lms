@@ -39,16 +39,6 @@
 		<Button
 			class="p-0 bg-transparent h-fit text-neutral-950 dark:text-neutral-100 w-5 hover:bg-transparent"
 		>
-			<Bell />
-		</Button>
-		<Button
-			class="p-0 bg-transparent h-fit text-neutral-950 dark:text-neutral-100  w-5 hover:bg-transparent"
-		>
-			<MessageSquare />
-		</Button>
-		<Button
-			class="p-0 bg-transparent h-fit text-neutral-950 dark:text-neutral-100 w-5 hover:bg-transparent"
-		>
 			<User />
 		</Button>
 	</div>

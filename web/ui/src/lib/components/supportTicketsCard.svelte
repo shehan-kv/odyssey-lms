@@ -4,6 +4,7 @@
 	import CardLoader from './cardLoader.svelte';
 	import CardErrorRetry from './cardErrorRetry.svelte';
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 
 	let loading = true;
 	let fetchError = false;
@@ -12,6 +13,7 @@
 	 * @type {{
 	 * totalCount: number,
 	 * tickets:{
+	 * 	id: number,
 	 * 	createdAt: number,
 	 *  type: string,
 	 *  subject: string,
@@ -83,7 +85,7 @@
 				</Table.Header>
 				<Table.Body>
 					{#each data.tickets as ticket}
-						<Table.Row>
+						<Table.Row on:click={() => goto(`/support-tickets/${ticket.id}`)}>
 							<Table.Cell>
 								{ticket.createdAt ? new Date(ticket.createdAt).toLocaleString() : 'Not Found'}
 							</Table.Cell>

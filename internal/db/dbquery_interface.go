@@ -38,4 +38,5 @@ type DBQuery interface {
 	FindTicketById(ctx context.Context, ticketId int64) (models.Ticket, error)
 	CreateTicketMessage(ctx context.Context, args params.CreateTicketMessage) error
 	SetTicketStatus(ctx context.Context, status string, ticketId int64) error
+	CreateCourseCategory(ctx context.Context, name string) error
 }

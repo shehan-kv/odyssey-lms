@@ -41,6 +41,8 @@ func RunApplication() {
 	http.Handle("POST /api/support-ticket/{id}/message", middleware.Authed(http.HandlerFunc(handler.CreateSupportTicketMessage)))
 	http.Handle("POST /api/support-ticket/{id}/resolve", middleware.Authed(http.HandlerFunc(handler.ResolveTicket)))
 
+	http.Handle("POST /api/course/category", middleware.Authed(http.HandlerFunc(handler.CreateCategory)))
+
 	http.HandleFunc("GET /api/system", handler.GetSystemInfo)
 
 	staticUiFs, _ := fs.Sub(web.WebUiFS, "ui/build")

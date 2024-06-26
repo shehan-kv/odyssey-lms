@@ -709,3 +709,10 @@ func (q *Queries) SetTicketStatus(ctx context.Context, status string, ticketId i
 
 	return err
 }
+
+func (q *Queries) CreateCourseCategory(ctx context.Context, name string) error {
+	const query = "INSERT INTO course_categories(name) VALUES (?)"
+	_, err := q.db.ExecContext(ctx, query, name)
+
+	return err
+}

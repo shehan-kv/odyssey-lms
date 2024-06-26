@@ -1,0 +1,35 @@
+package handler
+
+import (
+	"encoding/json"
+	"log"
+	"net/http"
+
+	dto "odyssey.lms/internal/dto/course"
+	"odyssey.lms/internal/service"
+)
+
+func CreateCategory(w http.ResponseWriter, r *http.Request) {
+	var createReq dto.CategoryCreateRequest
+
+	err := json.NewDecoder(r.Body).Decode(&createReq)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = createReq.Validate()
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = service.CreateCategory(r.Context(), createReq)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}

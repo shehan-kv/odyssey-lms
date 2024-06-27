@@ -12,3 +12,9 @@ func CreateCategory(ctx context.Context, args dto.CategoryCreateRequest) error {
 
 	return err
 }
+
+func GetCategories(ctx context.Context) ([]dto.CategoryResponse, error) {
+	categories, err := db.QUERY.GetCourseCategories(ctx)
+
+	return categories, err
+}

@@ -5,6 +5,7 @@ import (
 
 	"odyssey.lms/internal/db/models"
 	"odyssey.lms/internal/db/params"
+	courseDto "odyssey.lms/internal/dto/course"
 	evntDto "odyssey.lms/internal/dto/event"
 	queryParams "odyssey.lms/internal/dto/params"
 	ticketDto "odyssey.lms/internal/dto/ticket"
@@ -39,4 +40,5 @@ type DBQuery interface {
 	CreateTicketMessage(ctx context.Context, args params.CreateTicketMessage) error
 	SetTicketStatus(ctx context.Context, status string, ticketId int64) error
 	CreateCourseCategory(ctx context.Context, name string) error
+	GetCourseCategories(ctx context.Context) ([]courseDto.CategoryResponse, error)
 }

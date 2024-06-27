@@ -9,6 +9,7 @@ import (
 
 	"odyssey.lms/internal/db/models"
 	"odyssey.lms/internal/db/params"
+	courseDto "odyssey.lms/internal/dto/course"
 	evntDto "odyssey.lms/internal/dto/event"
 	queryParams "odyssey.lms/internal/dto/params"
 	ticketDto "odyssey.lms/internal/dto/ticket"
@@ -700,4 +701,28 @@ func (q *Queries) CreateCourseCategory(ctx context.Context, name string) error {
 	_, err := q.db.ExecContext(ctx, query, name)
 
 	return err
+}
+
+func (q *Queries) GetCourseCategories(ctx context.Context) ([]courseDto.CategoryResponse, error) {
+	const query = "SELECT id, name FROM course_categories"
+	categoryRsp := make([]courseDto.CategoryResponse, 0)
+
+	rows, err := q.db.QueryContext(ctx, query)
+	if err != nil {
+		return categoryRsp, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var category courseDto.CategoryResponse
+		err := rows.Scan(&category.Value, &category.Label)
+		if err != nil {
+			return categoryRsp, err
+		}
+
+		categoryRsp = append(categoryRsp, category)
+	}
+
+	return categoryRsp, err
 }

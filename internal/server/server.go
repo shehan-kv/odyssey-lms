@@ -43,8 +43,9 @@ func RunApplication() {
 	http.Handle("POST /api/support-ticket/{id}/resolve", middleware.Authed(http.HandlerFunc(handler.ResolveTicket)))
 
 	http.Handle("GET /api/course", middleware.Authed(http.HandlerFunc(handler.GetCourses)))
-	http.Handle("POST /api/course", middleware.Authed(http.HandlerFunc(handler.CreateCourse)))
+	http.Handle("GET /api/course/{id}", middleware.Authed(http.HandlerFunc(handler.GetCourseById)))
 	http.Handle("GET /api/course/category", middleware.Authed(http.HandlerFunc(handler.GetCategories)))
+	http.Handle("POST /api/course", middleware.Authed(http.HandlerFunc(handler.CreateCourse)))
 	http.Handle("POST /api/course/category", middleware.Authed(http.HandlerFunc(handler.CreateCategory)))
 
 	http.HandleFunc("GET /api/system", handler.GetSystemInfo)

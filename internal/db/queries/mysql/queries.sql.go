@@ -778,7 +778,7 @@ func (q *Queries) CreateCourseSection(ctx context.Context, args params.CreateCou
 }
 
 func (q *Queries) GetSectionsByCourseId(ctx context.Context, courseId int64) ([]courseDto.SectionResponse, error) {
-	const query = "SELECT * FROM course_sections WHERE course_id = ?"
+	const query = "SELECT id, title FROM course_sections WHERE course_id = ?"
 
 	sectionsRsp := make([]courseDto.SectionResponse, 0)
 
@@ -798,6 +798,7 @@ func (q *Queries) GetSectionsByCourseId(ctx context.Context, courseId int64) ([]
 		if err != nil {
 			return sectionsRsp, err
 		}
+		sectionsRsp = append(sectionsRsp, section)
 	}
 
 	return sectionsRsp, nil
@@ -895,4 +896,31 @@ func (q *Queries) CountCourses(ctx context.Context, args queryParams.CourseQuery
 	err := row.Scan(&count)
 
 	return count, err
+}
+
+func (q *Queries) GetCourseById(ctx context.Context, courseId int64) (courseDto.CourseResponse, error) {
+	const query = `SELECT c.id, c.name, c.code, c.description, c.image, cc.name, c.created_at FROM courses c
+	JOIN course_categories cc ON cc.id = c.category_id
+	WHERE c.id = ?
+	`
+
+	row := q.db.QueryRowContext(ctx, query, courseId)
+
+	var course courseDto.CourseResponse
+	var createdAt sql.NullTime
+	err := row.Scan(
+		&course.Id,
+		&course.Name,
+		&course.Code,
+		&course.Description,
+		&course.Image,
+		&course.Category,
+		&createdAt,
+	)
+	if err != nil {
+		return course, err
+	}
+
+	course.CreatedAt = createdAt.Time.Format(time.RFC3339)
+	return course, nil
 }

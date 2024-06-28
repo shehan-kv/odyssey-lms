@@ -70,3 +70,20 @@ func GetCourses(ctx context.Context, args queryParams.CourseQueryParams) (dto.Co
 
 	return coursesRsp, err
 }
+
+func GetCourseById(ctx context.Context, courseId int64) (dto.CourseResponse, error) {
+	course, err := db.QUERY.GetCourseById(ctx, courseId)
+	if err != nil {
+		return course, err
+	}
+
+	sections, err := db.QUERY.GetSectionsByCourseId(ctx, courseId)
+	if err != nil {
+		return course, err
+	}
+
+	course.Sections = sections
+	course.IsEnrolled = false
+
+	return course, nil
+}

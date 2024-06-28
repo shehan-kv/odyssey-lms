@@ -170,3 +170,20 @@ func GetCourses(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(&courseRsp)
 }
+
+func GetCourseById(w http.ResponseWriter, r *http.Request) {
+	courseId, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	courseRsp, err := service.GetCourseById(r.Context(), courseId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(&courseRsp)
+}

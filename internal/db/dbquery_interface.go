@@ -48,4 +48,6 @@ type DBQuery interface {
 	GetCourses(ctx context.Context, args queryParams.CourseQueryParams) ([]courseDto.CourseResponse, error)
 	CountCourses(ctx context.Context, args queryParams.CourseQueryParams) (int64, error)
 	GetCourseById(ctx context.Context, courseId int64) (courseDto.CourseResponse, error)
+	CreateCourseEnroll(ctx context.Context, userId int64, courseId int64) error
+	GetCourseEnroll(ctx context.Context, userId int64, courseId int64) (models.CourseEnroll, error)
 }

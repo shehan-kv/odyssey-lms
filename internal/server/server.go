@@ -46,6 +46,7 @@ func RunApplication() {
 	http.Handle("GET /api/course/{id}", middleware.Authed(http.HandlerFunc(handler.GetCourseById)))
 	http.Handle("GET /api/course/category", middleware.Authed(http.HandlerFunc(handler.GetCategories)))
 	http.Handle("POST /api/course", middleware.Authed(http.HandlerFunc(handler.CreateCourse)))
+	http.Handle("POST /api/course/{id}/enroll", middleware.Authed(http.HandlerFunc(handler.EnrollInCourse)))
 	http.Handle("POST /api/course/category", middleware.Authed(http.HandlerFunc(handler.CreateCategory)))
 
 	http.HandleFunc("GET /api/system", handler.GetSystemInfo)

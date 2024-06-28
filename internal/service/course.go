@@ -2,11 +2,14 @@ package service
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"odyssey.lms/internal/db"
 	"odyssey.lms/internal/db/params"
 	dto "odyssey.lms/internal/dto/course"
 	queryParams "odyssey.lms/internal/dto/params"
+	"odyssey.lms/internal/middleware"
 )
 
 func CreateCategory(ctx context.Context, args dto.CategoryCreateRequest) error {
@@ -72,9 +75,15 @@ func GetCourses(ctx context.Context, args queryParams.CourseQueryParams) (dto.Co
 }
 
 func GetCourseById(ctx context.Context, courseId int64) (dto.CourseResponse, error) {
+
 	course, err := db.QUERY.GetCourseById(ctx, courseId)
 	if err != nil {
 		return course, err
+	}
+
+	userId, ok := ctx.Value(middleware.USER_ID).(int64)
+	if !ok {
+		return course, errors.New("could not get user-id from context")
 	}
 
 	sections, err := db.QUERY.GetSectionsByCourseId(ctx, courseId)
@@ -82,8 +91,36 @@ func GetCourseById(ctx context.Context, courseId int64) (dto.CourseResponse, err
 		return course, err
 	}
 
+	_, err = db.QUERY.GetCourseEnroll(ctx, userId, courseId)
+	if err != nil {
+		course.IsEnrolled = false
+	}
+
 	course.Sections = sections
-	course.IsEnrolled = false
+	course.IsEnrolled = true
 
 	return course, nil
+}
+
+func EnrollInCourse(ctx context.Context, courseId int64) error {
+	userId, ok := ctx.Value(middleware.USER_ID).(int64)
+	if !ok {
+		return errors.New("could not get user-id from context")
+	}
+
+	_, err := db.QUERY.GetCourseEnroll(ctx, userId, courseId)
+	if err != nil {
+		// Unexpected errors
+		// sql.ErrNoRows is expected when the user isn't enrolled yet
+		if !errors.Is(err, sql.ErrNoRows) {
+			return err
+		}
+	}
+	if err == nil {
+		// User already assigned
+		return nil
+	}
+
+	err = db.QUERY.CreateCourseEnroll(ctx, userId, courseId)
+	return err
 }

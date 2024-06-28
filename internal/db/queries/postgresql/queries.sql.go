@@ -905,3 +905,19 @@ func (q *Queries) GetCourseById(ctx context.Context, courseId int64) (courseDto.
 	course.CreatedAt = createdAt.Time.Format(time.RFC3339)
 	return course, nil
 }
+
+func (q *Queries) CreateCourseEnroll(ctx context.Context, userId int64, courseId int64) error {
+	const query = "INSERT INTO user_enrolled(user_id, course_id) VALUES($1, $2)"
+	_, err := q.db.ExecContext(ctx, query, userId, courseId)
+
+	return err
+}
+
+func (q *Queries) GetCourseEnroll(ctx context.Context, userId int64, courseId int64) (models.CourseEnroll, error) {
+	const query = "SELECT user_id, course_id from course_enroll WHERE user_id = $1 AND course_id = $2"
+	row := q.db.QueryRowContext(ctx, query, userId, courseId)
+
+	var enroll models.CourseEnroll
+	err := row.Scan(&enroll.UserId, &enroll.CourseId)
+	return enroll, err
+}

@@ -923,3 +923,41 @@ func (q *Queries) GetCourseEnroll(ctx context.Context, userId int64, courseId in
 	err := row.Scan(&enroll.UserId, &enroll.CourseId)
 	return enroll, err
 }
+
+func (q *Queries) GetEnrolledCourses(ctx context.Context, userId int64) ([]courseDto.CourseResponse, error) {
+	const query = `SELECT c.id, c.name, c.code, c.description, c.image, cc.name, c.created_at FROM courses c
+	JOIN course_categories cc ON cc.id = c.category_id
+	JOIN course_enroll ce ON ce.course_id = c.id
+	WHERE ce.user_id = ?
+	`
+
+	var courseRsp = make([]courseDto.CourseResponse, 0)
+	rows, err := q.db.QueryContext(ctx, query, userId)
+	if err != nil {
+		return courseRsp, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var course courseDto.CourseResponse
+		var createdAt sql.NullTime
+		err := rows.Scan(
+			&course.Id,
+			&course.Name,
+			&course.Code,
+			&course.Description,
+			&course.Image,
+			&course.Category,
+			&createdAt,
+		)
+		if err != nil {
+			return courseRsp, err
+		}
+		course.CreatedAt = createdAt.Time.Format(time.RFC3339)
+		courseRsp = append(courseRsp, course)
+	}
+
+	return courseRsp, nil
+
+}

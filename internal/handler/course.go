@@ -203,3 +203,15 @@ func EnrollInCourse(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+func GetEnrolledCourses(w http.ResponseWriter, r *http.Request) {
+
+	courseRsp, err := service.GetEnrolledCourses(r.Context())
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(&courseRsp)
+}

@@ -124,3 +124,17 @@ func EnrollInCourse(ctx context.Context, courseId int64) error {
 	err = db.QUERY.CreateCourseEnroll(ctx, userId, courseId)
 	return err
 }
+
+func GetEnrolledCourses(ctx context.Context) ([]dto.CourseResponse, error) {
+	userId, ok := ctx.Value(middleware.USER_ID).(int64)
+	if !ok {
+		return nil, errors.New("could not get user-id from context")
+	}
+
+	courses, err := db.QUERY.GetEnrolledCourses(ctx, userId)
+	if err != nil {
+		return courses, err
+	}
+
+	return courses, err
+}

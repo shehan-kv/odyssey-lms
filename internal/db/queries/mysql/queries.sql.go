@@ -741,3 +741,64 @@ func (q *Queries) GetCourseCategories(ctx context.Context) ([]courseDto.Category
 
 	return categoryRsp, err
 }
+
+func (q *Queries) FindCourseCategoryById(ctx context.Context, categoryId int64) (models.CourseCategory, error) {
+	const query = "SELECT * FROM course_categories WHERE id = ?"
+
+	row := q.db.QueryRowContext(ctx, query, categoryId)
+
+	var categoryRsp models.CourseCategory
+	err := row.Scan(
+		&categoryRsp.Id,
+		&categoryRsp.Name,
+	)
+	if err != nil {
+		return categoryRsp, err
+	}
+
+	return categoryRsp, nil
+}
+
+func (q *Queries) CreateCourse(ctx context.Context, args params.CreateCourse) (int64, error) {
+	const query = "INSERT INTO courses(name, code, description, image, category_id) VALUES (?, ?, ? , ?, ?)"
+	result, err := q.db.ExecContext(ctx, query, args.Name, args.Code, args.Description, args.Image, args.CategoryId)
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := result.LastInsertId()
+	return id, err
+}
+
+func (q *Queries) CreateCourseSection(ctx context.Context, args params.CreateCourseSection) error {
+	const query = "INSERT INTO course_sections(title, content, course_id) VALUES (?, ?, ?)"
+	_, err := q.db.ExecContext(ctx, query, args.Title, args.Content, args.CourseId)
+
+	return err
+}
+
+func (q *Queries) GetSectionsByCourseId(ctx context.Context, courseId int64) ([]courseDto.SectionResponse, error) {
+	const query = "SELECT * FROM course_sections WHERE course_id = ?"
+
+	sectionsRsp := make([]courseDto.SectionResponse, 0)
+
+	rows, err := q.db.QueryContext(ctx, query, courseId)
+	if err != nil {
+		return sectionsRsp, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var section courseDto.SectionResponse
+		err := rows.Scan(
+			&section.Id,
+			&section.Title,
+		)
+		if err != nil {
+			return sectionsRsp, err
+		}
+	}
+
+	return sectionsRsp, nil
+}

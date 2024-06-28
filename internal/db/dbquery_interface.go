@@ -41,4 +41,8 @@ type DBQuery interface {
 	SetTicketStatus(ctx context.Context, status string, ticketId int64) error
 	CreateCourseCategory(ctx context.Context, name string) error
 	GetCourseCategories(ctx context.Context) ([]courseDto.CategoryResponse, error)
+	FindCourseCategoryById(ctx context.Context, categoryId int64) (models.CourseCategory, error)
+	CreateCourse(ctx context.Context, args params.CreateCourse) (int64, error)
+	CreateCourseSection(ctx context.Context, args params.CreateCourseSection) error
+	GetSectionsByCourseId(ctx context.Context, courseId int64) ([]courseDto.SectionResponse, error)
 }

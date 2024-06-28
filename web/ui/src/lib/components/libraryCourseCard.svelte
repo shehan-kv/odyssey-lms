@@ -4,7 +4,7 @@
 
 	/**
 	 * @type {{
-	 * 	img: string,
+	 * 	image: string,
 	 * 	name: string,
 	 * 	code: string,
 	 * 	description:string,
@@ -17,8 +17,8 @@
 
 <div class="max-w-md space-y-2">
 	<div class="h-60 rounded overflow-hidden">
-		{#if course && course.img}
-			<img src={course.img} alt={course.name} />
+		{#if course && course.image}
+			<img src={`/uploads/${course.image}`} alt={course.name} class="object-cover" />
 		{:else}
 			<ImagePlaceholder />
 		{/if}

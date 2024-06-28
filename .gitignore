@@ -9,3 +9,6 @@
 
 # EXE Files
 *.exe
+
+# Uploads Directory
+uploads

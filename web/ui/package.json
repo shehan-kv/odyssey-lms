@@ -37,6 +37,8 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@editorjs/editorjs": "^2.29.1",
+		"@editorjs/header": "^2.8.1",
 		"bits-ui": "^0.21.10",
 		"chart.js": "^4.4.3",
 		"clsx": "^2.1.1",

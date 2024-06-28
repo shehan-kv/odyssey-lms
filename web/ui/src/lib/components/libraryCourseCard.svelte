@@ -28,7 +28,4 @@
 	<p class="text-sm text-ellipsis overflow-hidden h-20">
 		{course.description}
 	</p>
-	<p>
-		<span class="flex items-center gap-2 text-sm"><Users2 size={16} />{course.enrolled}</span>
-	</p>
 </div>

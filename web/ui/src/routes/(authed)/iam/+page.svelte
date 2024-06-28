@@ -146,7 +146,7 @@
 </svelte:head>
 
 <div
-	class="relative flex flex-col py-6 px-4 rounded bg-white dark:bg-neutral-950 overflow-scroll w-full"
+	class="relative flex flex-col py-6 px-4 rounded bg-white dark:bg-neutral-950 overflow-scroll grow"
 >
 	{#if loading}
 		<CardLoader />

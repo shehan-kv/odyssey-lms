@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	dto "odyssey.lms/internal/dto/course"
+	queryParams "odyssey.lms/internal/dto/params"
 	"odyssey.lms/internal/service"
 )
 
@@ -122,4 +123,50 @@ func CreateCourse(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+func GetCourses(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	page := query.Get("page")
+	limit := query.Get("limit")
+	search := query.Get("search")
+	category := query.Get("category")
+
+	var pageNum int
+	if page == "" {
+		pageNum = 1
+	} else {
+		num, err := strconv.Atoi(page)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		pageNum = num
+	}
+
+	var limitNum int
+	if limit == "" {
+		limitNum = 30
+	} else {
+		num, err := strconv.Atoi(limit)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		limitNum = num
+	}
+
+	courseRsp, err := service.GetCourses(r.Context(), queryParams.CourseQueryParams{
+		Page:     pageNum,
+		Limit:    limitNum,
+		Search:   search,
+		Category: category,
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(&courseRsp)
 }

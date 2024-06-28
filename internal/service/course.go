@@ -6,6 +6,7 @@ import (
 	"odyssey.lms/internal/db"
 	"odyssey.lms/internal/db/params"
 	dto "odyssey.lms/internal/dto/course"
+	queryParams "odyssey.lms/internal/dto/params"
 )
 
 func CreateCategory(ctx context.Context, args dto.CategoryCreateRequest) error {
@@ -50,4 +51,22 @@ func CreateCourse(ctx context.Context, args dto.CourseCreateRequest) error {
 	}
 
 	return nil
+}
+
+func GetCourses(ctx context.Context, args queryParams.CourseQueryParams) (dto.CoursesResponse, error) {
+	var coursesRsp dto.CoursesResponse
+	courses, err := db.QUERY.GetCourses(ctx, args)
+	if err != nil {
+		return coursesRsp, err
+	}
+
+	count, err := db.QUERY.CountCourses(ctx, args)
+	if err != nil {
+		return coursesRsp, err
+	}
+
+	coursesRsp.TotalCount = count
+	coursesRsp.Courses = courses
+
+	return coursesRsp, err
 }

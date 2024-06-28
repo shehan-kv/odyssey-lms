@@ -802,3 +802,97 @@ func (q *Queries) GetSectionsByCourseId(ctx context.Context, courseId int64) ([]
 
 	return sectionsRsp, nil
 }
+
+func (q *Queries) GetCourses(ctx context.Context, args queryParams.CourseQueryParams) ([]courseDto.CourseResponse, error) {
+	var sb strings.Builder
+	sb.WriteString("SELECT c.id, c.name, c.code, c.description, c.image, cc.name, c.created_at FROM courses c")
+	sb.WriteString(" JOIN course_categories cc ON cc.id = c.category_id")
+	if args.Search != "" || args.Category != "" {
+		sb.WriteString(" WHERE")
+		if args.Search != "" {
+			sb.WriteString(" description LIKE '%")
+			sb.WriteString(args.Search)
+			sb.WriteString("%'")
+		}
+
+		var stmts []string
+		if args.Category != "" {
+			stmts = append(stmts, " category_id = '"+args.Category+"'")
+		}
+		if args.Search != "" && len(stmts) > 0 {
+			sb.WriteString(" AND ")
+		}
+		sb.WriteString(strings.Join(stmts, " AND "))
+	}
+
+	sb.WriteString(" ORDER BY created_at DESC")
+	if args.Page > 0 {
+		offset := (args.Page - 1) * args.Limit
+		sb.WriteString(" LIMIT ")
+		sb.WriteString(strconv.Itoa(args.Limit))
+		sb.WriteString(" ")
+		sb.WriteString(" OFFSET ")
+		sb.WriteString(strconv.Itoa(offset))
+	}
+
+	var courses = make([]courseDto.CourseResponse, 0)
+
+	rows, err := q.db.QueryContext(ctx, sb.String())
+	if err != nil {
+		return courses, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var course courseDto.CourseResponse
+		var createdAt sql.NullTime
+		err := rows.Scan(
+			&course.Id,
+			&course.Name,
+			&course.Code,
+			&course.Description,
+			&course.Image,
+			&course.Category,
+			&createdAt,
+		)
+
+		if err != nil {
+			return courses, err
+		}
+		course.CreatedAt = createdAt.Time.Format(time.RFC3339)
+		courses = append(courses, course)
+	}
+
+	return courses, nil
+}
+
+func (q *Queries) CountCourses(ctx context.Context, args queryParams.CourseQueryParams) (int64, error) {
+	var sb strings.Builder
+	sb.WriteString("SELECT count(*) FROM courses c")
+	sb.WriteString(" JOIN course_categories cc ON cc.id = c.category_id")
+	if args.Search != "" || args.Category != "" {
+		sb.WriteString(" WHERE")
+		if args.Search != "" {
+			sb.WriteString(" description LIKE '%")
+			sb.WriteString(args.Search)
+			sb.WriteString("%'")
+		}
+
+		var stmts []string
+		if args.Category != "" {
+			stmts = append(stmts, " category_id = '"+args.Category+"'")
+		}
+		if args.Search != "" && len(stmts) > 0 {
+			sb.WriteString(" AND ")
+		}
+		sb.WriteString(strings.Join(stmts, " AND "))
+	}
+
+	row := q.db.QueryRowContext(ctx, sb.String())
+
+	var count int64
+	err := row.Scan(&count)
+
+	return count, err
+}

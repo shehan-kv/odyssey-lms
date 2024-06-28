@@ -45,4 +45,6 @@ type DBQuery interface {
 	CreateCourse(ctx context.Context, args params.CreateCourse) (int64, error)
 	CreateCourseSection(ctx context.Context, args params.CreateCourseSection) error
 	GetSectionsByCourseId(ctx context.Context, courseId int64) ([]courseDto.SectionResponse, error)
+	GetCourses(ctx context.Context, args queryParams.CourseQueryParams) ([]courseDto.CourseResponse, error)
+	CountCourses(ctx context.Context, args queryParams.CourseQueryParams) (int64, error)
 }

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
 	"strings"
 
 	"odyssey.lms/internal/auth"
@@ -48,10 +49,20 @@ func RunApplication() {
 
 	http.HandleFunc("GET /api/system", handler.GetSystemInfo)
 
-	staticUiFs, _ := fs.Sub(web.WebUiFS, "ui/build")
+	staticUiFs, err := fs.Sub(web.WebUiFS, "ui/build")
+	if err != nil {
+		log.Fatalln("[ ERROR ] Error with static file system")
+	}
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.Fatalln("[ ERROR ] Could not get current working directory")
+	}
+	uploadsFs := os.DirFS(path.Join(cwd, "uploads"))
 
 	http.Handle("GET /_app/", http.FileServerFS(staticUiFs))
 	http.Handle("GET /favicon.png", http.FileServerFS(staticUiFs))
+	http.Handle("GET /uploads/", http.StripPrefix("/uploads", http.FileServerFS(uploadsFs)))
 
 	http.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/api/") {
@@ -67,7 +78,7 @@ func RunApplication() {
 	}
 
 	log.Println(colors.GreenBold + "[ INFO ] Server listening on " + listenOn + colors.Reset)
-	err := http.ListenAndServe(listenOn, nil)
+	err = http.ListenAndServe(listenOn, nil)
 	if err != nil {
 		log.Fatal(colors.RedBold + "[ ERROR ] Failed to listen on " + listenOn + colors.Reset)
 	}

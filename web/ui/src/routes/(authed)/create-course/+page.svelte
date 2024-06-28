@@ -10,7 +10,6 @@
 	import CreateCategoryDialog from '$lib/components/createCategoryDialog.svelte';
 	import AddCourseSection from '$lib/components/addCourseSection.svelte';
 	import CourseSectionItem from '$lib/components/courseSectionItem.svelte';
-	import { Title } from 'chart.js';
 
 	let dispatch = createEventDispatcher();
 	let courseData = { name: '', code: '', description: '' };

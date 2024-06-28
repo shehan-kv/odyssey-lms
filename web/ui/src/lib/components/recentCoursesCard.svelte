@@ -28,7 +28,7 @@
 		loading = true;
 		fetchError = false;
 
-		fetch('/api/course/recent')
+		fetch('/api/course?limit=6')
 			.then((response) => {
 				if (response.status != 200) {
 					fetchError = true;

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log"
 
 	"odyssey.lms/internal/db"
 	"odyssey.lms/internal/db/params"
@@ -137,4 +138,40 @@ func GetEnrolledCourses(ctx context.Context) ([]dto.CourseResponse, error) {
 	}
 
 	return courses, err
+}
+
+func GetEnrolledCourse(ctx context.Context, courseId int64) (dto.EnrollCourseResponse, error) {
+	var courseRsp dto.EnrollCourseResponse
+	userId, ok := ctx.Value(middleware.USER_ID).(int64)
+	if !ok {
+		return courseRsp, errors.New("could not get user-id from context")
+	}
+
+	_, err := db.QUERY.GetCourseEnroll(ctx, userId, courseId)
+	if err != nil {
+		return courseRsp, ErrNotAllowed
+	}
+
+	course, err := db.QUERY.GetCourseById(ctx, courseId)
+	if err != nil {
+		return courseRsp, err
+	}
+
+	sections, err := db.QUERY.GetEnrolledSectionsByCourseId(ctx, courseId)
+	if err != nil {
+		log.Println(err)
+		return courseRsp, err
+	}
+
+	courseRsp.Id = course.Id
+	courseRsp.Name = course.Name
+	courseRsp.Code = course.Code
+	courseRsp.Description = course.Description
+	courseRsp.Image = course.Image
+	courseRsp.Category = course.Category
+	courseRsp.CreatedAt = course.CreatedAt
+
+	courseRsp.Sections = sections
+
+	return courseRsp, nil
 }

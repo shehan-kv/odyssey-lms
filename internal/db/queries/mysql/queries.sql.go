@@ -978,3 +978,31 @@ func (q *Queries) GetEnrolledCourses(ctx context.Context, userId int64) ([]cours
 	return courseRsp, nil
 
 }
+
+func (q *Queries) GetEnrolledSectionsByCourseId(ctx context.Context, courseId int64) ([]courseDto.EnrollSectionResponse, error) {
+	const query = `SELECT cs.id, cs.title, CASE WHEN csc.section_id IS NOT NULL THEN TRUE ELSE FALSE END AS isComplete 
+	FROM course_sections cs
+	LEFT JOIN course_sections_complete csc ON csc.section_id = cs.id
+	WHERE cs.course_id = ?
+	`
+
+	var sectionRsp = make([]courseDto.EnrollSectionResponse, 0)
+	rows, err := q.db.QueryContext(ctx, query, courseId)
+	if err != nil {
+		return sectionRsp, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var section courseDto.EnrollSectionResponse
+		err := rows.Scan(&section.Id, &section.Title, &section.IsComplete)
+		if err != nil {
+			return sectionRsp, err
+		}
+
+		sectionRsp = append(sectionRsp, section)
+	}
+
+	return sectionRsp, nil
+}

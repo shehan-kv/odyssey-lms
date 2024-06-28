@@ -12,13 +12,10 @@
 	 * @type {{
 	 * 	totalCourses: number,
 	 *  courses:{
-	 * 		timestamp: number,
+	 * 		createdAt: number,
 	 * 		code: string,
 	 * 		name: string,
 	 * 		category: string,
-	 * 		enrolled: number,
-	 * 		instructor: string[],
-	 * 		status: string
 	 * 	}[]
 	 * }}
 	 */
@@ -84,29 +81,17 @@
 						<Table.Head class="font-semibold">Code</Table.Head>
 						<Table.Head class="font-semibold">Name</Table.Head>
 						<Table.Head class="font-semibold">Category</Table.Head>
-						<Table.Head class="font-semibold">Enrolled</Table.Head>
-						<Table.Head class="font-semibold">Instructor(s)</Table.Head>
-						<Table.Head class="font-semibold text-right">Status</Table.Head>
 					</Table.Row>
 				</Table.Header>
 				<Table.Body>
 					{#each data.courses as course}
 						<Table.Row>
-							<Table.Cell>{new Date(course.timestamp).toLocaleString()}</Table.Cell>
+							<Table.Cell>
+								{course.createdAt ? new Date(course.createdAt).toLocaleString() : 'Not Found'}
+							</Table.Cell>
 							<Table.Cell>{course.code}</Table.Cell>
 							<Table.Cell>{course.name}</Table.Cell>
 							<Table.Cell>{course.category}</Table.Cell>
-							<Table.Cell>{course.enrolled} Enrolled</Table.Cell>
-							<Table.Cell>{course.instructor.join(', ')}</Table.Cell>
-							<Table.Cell>
-								<span class="flex justify-end items-center gap-2">
-									{#if course.status == 'active'}
-										Active <span><CircleCheck size={16} /></span>
-									{:else if course.status == 'deactivated'}
-										Deactivated <span><CircleAlert size={16} /></span>
-									{/if}
-								</span></Table.Cell
-							>
 						</Table.Row>
 					{/each}
 				</Table.Body>
@@ -114,16 +99,11 @@
 		{/if}
 	</div>
 
-	<div class="flex gap-8 mt-10">
-		<a href="/">
-			<span class="flex text-xs items-center gap-2 font-semibold"
-				><Plus size={20} /> Create A Course</span
-			>
-		</a>
-		<a href="/">
-			<span class="flex text-xs items-center gap-2 font-semibold"
-				><List size={20} /> View All Courses</span
-			>
+	<div class="mt-10">
+		<a href="/create-course">
+			<span class="flex text-xs items-center gap-2 font-semibold">
+				<Plus size={20} /> Create A Course
+			</span>
 		</a>
 	</div>
 </div>

@@ -4,6 +4,7 @@
 		GraduationCap,
 		Info,
 		LibrarySquare,
+		Plus,
 		Settings,
 		Ticket,
 		Users
@@ -14,6 +15,7 @@
 <div class="hidden xl:block bg-white dark:bg-neutral-950 rounded py-4 w-60">
 	<div class="flex flex-col">
 		<SidebarLink to="/"><Activity size={20} /> System Console</SidebarLink>
+		<SidebarLink to="/create-course"><Plus size={20} />Create Course</SidebarLink>
 		<SidebarLink to="/enrolled-courses"><GraduationCap size={20} />Enrolled Courses</SidebarLink>
 		<SidebarLink to="/course-library"><LibrarySquare size={20} />Course Library</SidebarLink>
 		<SidebarLink to="/iam"><Users size={20} /> IAM</SidebarLink>

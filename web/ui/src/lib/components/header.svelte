@@ -1,13 +1,24 @@
 <script>
-	import { Bell, HelpCircle, Menu, MessageSquare, User } from 'lucide-svelte';
+	import { HelpCircle, Menu, User } from 'lucide-svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import Logo from './logo.svelte';
 	import ThemeToggle from './themeToggle.svelte';
 	import Button from './ui/button/button.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
 
 	let dispatch = createEventDispatcher();
+
+	const signOut = () => {
+		fetch('/api/auth/sign-out', { method: 'POST' }).then((response) => {
+			if (response.ok) {
+				goto('/sign-in');
+			} else {
+				toast.error('Could not sign out');
+			}
+		});
+	};
 </script>
 
 <header class="py-2 px-4 flex justify-between items-center bg-white dark:bg-neutral-950 rounded">
@@ -36,10 +47,11 @@
 				</DropdownMenu.Item>
 			</DropdownMenu.Content>
 		</DropdownMenu.Root>
-		<Button
-			class="p-0 bg-transparent h-fit text-neutral-950 dark:text-neutral-100 w-5 hover:bg-transparent"
-		>
-			<User />
-		</Button>
+		<DropdownMenu.Root>
+			<DropdownMenu.Trigger><User size={20} /></DropdownMenu.Trigger>
+			<DropdownMenu.Content>
+				<DropdownMenu.Item class="text-xs" on:click={signOut}>Sign Out</DropdownMenu.Item>
+			</DropdownMenu.Content>
+		</DropdownMenu.Root>
 	</div>
 </header>

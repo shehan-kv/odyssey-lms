@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"time"
 
 	dto "odyssey.lms/internal/dto/auth"
 	"odyssey.lms/internal/service"
@@ -59,6 +60,20 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   maxAge,
+	})
+	w.WriteHeader(http.StatusOK)
+}
+
+func SignOut(w http.ResponseWriter, r *http.Request) {
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "auth-token",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+		Expires:  time.Now().AddDate(0, 0, -1),
 	})
 	w.WriteHeader(http.StatusOK)
 }

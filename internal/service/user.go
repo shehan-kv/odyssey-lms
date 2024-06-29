@@ -45,6 +45,9 @@ func GetUserSelf(ctx context.Context) (dto.UserResponse, error) {
 	}
 
 	role, err := db.QUERY.FindRoleById(ctx, user.Role)
+	if err != nil {
+		return userRsp, err
+	}
 
 	userRsp.FirstName = user.FirstName
 	userRsp.LastName = user.LastName

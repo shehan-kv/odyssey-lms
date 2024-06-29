@@ -163,7 +163,7 @@ func GetEnrolledCourse(ctx context.Context, courseId int64) (dto.EnrollCourseRes
 		return courseRsp, err
 	}
 
-	sections, err := db.QUERY.GetEnrolledSectionsByCourseId(ctx, courseId)
+	sections, err := db.QUERY.GetEnrolledSectionsByCourseId(ctx, userId, courseId)
 	if err != nil {
 		return courseRsp, err
 	}
@@ -192,7 +192,7 @@ func GetEnrolledSections(ctx context.Context, courseId int64) ([]dto.EnrollSecti
 		return nil, ErrNotAllowed
 	}
 
-	sections, err := db.QUERY.GetEnrolledSectionsByCourseId(ctx, courseId)
+	sections, err := db.QUERY.GetEnrolledSectionsByCourseId(ctx, userId, courseId)
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +211,7 @@ func GetEnrolledSection(ctx context.Context, courseId int64, sectionId int64) (d
 		return dto.EnrollSectionResponse{}, ErrNotAllowed
 	}
 
-	section, err := db.QUERY.GetEnrolledSectionById(ctx, sectionId)
+	section, err := db.QUERY.GetEnrolledSectionById(ctx, userId, sectionId)
 	if err != nil {
 		return dto.EnrollSectionResponse{}, err
 	}

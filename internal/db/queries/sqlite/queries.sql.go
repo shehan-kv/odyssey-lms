@@ -962,15 +962,15 @@ func (q *Queries) GetEnrolledCourses(ctx context.Context, userId int64) ([]cours
 
 }
 
-func (q *Queries) GetEnrolledSectionsByCourseId(ctx context.Context, courseId int64) ([]courseDto.EnrollSectionResponse, error) {
-	const query = `SELECT cs.id, cs.title, CASE WHEN csc.section_id IS NOT NULL THEN TRUE ELSE FALSE END AS isComplete 
+func (q *Queries) GetEnrolledSectionsByCourseId(ctx context.Context, userId int64, courseId int64) ([]courseDto.EnrollSectionResponse, error) {
+	const query = `SELECT cs.id, cs.title, CASE WHEN csc.user_id = ? THEN TRUE ELSE FALSE END AS isComplete 
 	FROM course_sections cs
 	LEFT JOIN course_sections_complete csc ON csc.section_id = cs.id
 	WHERE cs.course_id = ?
 	`
 
 	var sectionRsp = make([]courseDto.EnrollSectionResponse, 0)
-	rows, err := q.db.QueryContext(ctx, query, courseId)
+	rows, err := q.db.QueryContext(ctx, query, userId, courseId)
 	if err != nil {
 		return sectionRsp, err
 	}
@@ -990,13 +990,13 @@ func (q *Queries) GetEnrolledSectionsByCourseId(ctx context.Context, courseId in
 	return sectionRsp, nil
 }
 
-func (q *Queries) GetEnrolledSectionById(ctx context.Context, sectionId int64) (courseDto.EnrollSectionResponse, error) {
-	const query = `SELECT cs.id, cs.title, cs.content, CASE WHEN csc.section_id IS NOT NULL THEN TRUE ELSE FALSE END AS isComplete 
+func (q *Queries) GetEnrolledSectionById(ctx context.Context, userId int64, sectionId int64) (courseDto.EnrollSectionResponse, error) {
+	const query = `SELECT cs.id, cs.title, cs.content, CASE WHEN csc.user_id = ? THEN TRUE ELSE FALSE END AS isComplete 
 	FROM course_sections cs
 	LEFT JOIN course_sections_complete csc ON csc.section_id = cs.id
 	WHERE cs.id = ?
 	`
-	row := q.db.QueryRowContext(ctx, query, sectionId)
+	row := q.db.QueryRowContext(ctx, query, userId, sectionId)
 
 	var section courseDto.EnrollSectionResponse
 	err := row.Scan(&section.Id, &section.Title, &section.Content, &section.IsComplete)

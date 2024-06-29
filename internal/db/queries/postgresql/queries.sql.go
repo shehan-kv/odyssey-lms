@@ -161,6 +161,13 @@ func (q *Queries) UpdateUser(ctx context.Context, userId int64, arg params.Updat
 	return err
 }
 
+func (q *Queries) SetUserPassword(ctx context.Context, userId int64, password string) error {
+	const query = "UPDATE users SET password = $1 WHERE id = $2"
+	_, err := q.db.ExecContext(ctx, query, password, userId)
+
+	return err
+}
+
 func (q *Queries) CountUsersByRole(ctx context.Context, role string) (int64, error) {
 
 	const query = `SELECT count(*) FROM users 

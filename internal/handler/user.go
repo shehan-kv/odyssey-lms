@@ -191,3 +191,27 @@ func UserUpdateSelf(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+func UserUpdatePasswordSelf(w http.ResponseWriter, r *http.Request) {
+	var updateReq dto.UserSelfUpdatePasswordRequest
+
+	err := json.NewDecoder(r.Body).Decode(&updateReq)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = updateReq.Validate()
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = service.UserUpdatePasswordSelf(r.Context(), updateReq)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}

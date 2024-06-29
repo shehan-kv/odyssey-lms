@@ -226,3 +226,34 @@ func UserUpdateSelf(ctx context.Context, args dto.UserSelfUpdateRequest) error {
 
 	return err
 }
+
+func UserUpdatePasswordSelf(ctx context.Context, args dto.UserSelfUpdatePasswordRequest) error {
+	userId, ok := ctx.Value(middleware.USER_ID).(int64)
+	if !ok {
+		return errors.New("could not get user-id from context")
+	}
+
+	user, err := db.QUERY.FindUserById(ctx, userId)
+	if err != nil {
+		return err
+	}
+
+	userWithPassword, err := db.QUERY.FindUserWithPasswordByEmail(ctx, user.Email)
+	if err != nil {
+		return err
+	}
+
+	isMatch := auth.CompareHashAndPassword(userWithPassword.Password, args.CurrentPassword)
+	if !isMatch {
+		return errors.New("passwords don't match")
+	}
+
+	hashedPassword, err := auth.HashPassword(args.NewPassword)
+	if err != nil {
+		return err
+	}
+
+	err = db.QUERY.SetUserPassword(ctx, userId, hashedPassword)
+
+	return err
+}

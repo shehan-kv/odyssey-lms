@@ -1,18 +1,15 @@
 <script>
 	import {
 		Activity,
-		Bell,
 		GraduationCap,
 		Info,
 		LibrarySquare,
-		SendHorizonal,
 		Settings,
 		Ticket,
 		Users,
 		X
 	} from 'lucide-svelte';
 	import SidebarLink from './sidebarLink.svelte';
-	import LecternIcon from './lecternIcon.svelte';
 	import Button from './ui/button/button.svelte';
 	import { createEventDispatcher } from 'svelte';
 
@@ -41,13 +38,9 @@
 		<div class="flex flex-col">
 			<SidebarLink to="/"><Activity size={20} /> System Console</SidebarLink>
 			<SidebarLink to="/enrolled-courses"><GraduationCap size={20} />Enrolled Courses</SidebarLink>
-		</div>
-
-		<div class="flex flex-col mt-5">
 			<SidebarLink to="/course-library"><LibrarySquare size={20} />Course Library</SidebarLink>
 			<SidebarLink to="/iam"><Users size={20} /> IAM</SidebarLink>
 			<SidebarLink to="/events"><Info size={20} /> Events</SidebarLink>
-			<SidebarLink to="/notifications"><Bell size={20} />Notifications</SidebarLink>
 			<SidebarLink to="/support-tickets"><Ticket size={20} />Support Tickets</SidebarLink>
 			<SidebarLink to="/settings"><Settings size={20} />Settings</SidebarLink>
 		</div>

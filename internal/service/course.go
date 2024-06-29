@@ -100,10 +100,11 @@ func GetCourseById(ctx context.Context, courseId int64) (dto.CourseResponse, err
 	_, err = db.QUERY.GetCourseEnroll(ctx, userId, courseId)
 	if err != nil {
 		course.IsEnrolled = false
+	} else {
+		course.IsEnrolled = true
 	}
 
 	course.Sections = sections
-	course.IsEnrolled = true
 
 	return course, nil
 }

@@ -15,6 +15,7 @@
 	import { Toaster } from '$lib/components/ui/sonner';
 	import CardLoader from '$lib/components/cardLoader.svelte';
 	import CardErrorRetry from '$lib/components/cardErrorRetry.svelte';
+	import CreateUserDialog from '$lib/components/createUserDialog.svelte';
 
 	let loading = true;
 	let fetchError = false;
@@ -95,6 +96,8 @@
 		fetchData();
 	});
 
+	let createUserOpen = false;
+
 	/**
 	 * @type {{
 	 *  open: boolean,
@@ -162,6 +165,7 @@
 		</div>
 		<div class="flex items-center gap-5">
 			<Button
+				on:click={() => (createUserOpen = !createUserOpen)}
 				class="p-0 bg-transparent h-fit text-neutral-950 dark:text-neutral-100 w-fit hover:bg-transparent text-xs"
 			>
 				<UserPlus size={20} class="mr-2" />
@@ -348,5 +352,10 @@
 />
 <DeleteUserDialog open={deleteUser.open} user={deleteUser.user} on:delete={fetchData} />
 <ActivateUserDialog open={activateUser.open} user={activateUser.user} on:activate={fetchData} />
+<CreateUserDialog
+	open={createUserOpen}
+	on:close={() => (createUserOpen = !createUserOpen)}
+	on:create={fetchData}
+/>
 
 <Toaster />

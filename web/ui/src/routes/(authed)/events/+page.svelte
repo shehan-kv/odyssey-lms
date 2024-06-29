@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
+	import { afterNavigate, goto } from '$app/navigation';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import { CircleAlert, Info, Search } from 'lucide-svelte';
 	import * as Select from '$lib/components/ui/select';
@@ -9,6 +9,7 @@
 	import * as Pagination from '$lib/components/ui/pagination';
 	import CardLoader from '$lib/components/cardLoader.svelte';
 	import CardErrorRetry from '$lib/components/cardErrorRetry.svelte';
+	import { userRole } from '../../../stores/store';
 
 	let loading = true;
 	let fetchError = false;
@@ -97,6 +98,12 @@
 				loading = false;
 			});
 	};
+
+	afterNavigate(() => {
+		if ($userRole != 'administrator') {
+			goto('/enrolled-courses');
+		}
+	});
 
 	onMount(() => {
 		fetchData();

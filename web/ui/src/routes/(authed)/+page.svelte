@@ -4,6 +4,14 @@
 	import RecentEventsCard from '$lib/components/recentEventsCard.svelte';
 	import RecentCoursesCard from '$lib/components/recentCoursesCard.svelte';
 	import SupportTicketsCard from '$lib/components/supportTicketsCard.svelte';
+	import { afterNavigate, goto } from '$app/navigation';
+	import { userRole } from '../../stores/store';
+
+	afterNavigate(() => {
+		if ($userRole != 'administrator') {
+			goto('/enrolled-courses');
+		}
+	});
 </script>
 
 <svelte:head>

@@ -10,8 +10,9 @@
 	import CreateCategoryDialog from '$lib/components/createCategoryDialog.svelte';
 	import AddCourseSection from '$lib/components/addCourseSection.svelte';
 	import CourseSectionItem from '$lib/components/courseSectionItem.svelte';
+	import { userRole } from '../../../stores/store';
+	import { afterNavigate, goto } from '$app/navigation';
 
-	let dispatch = createEventDispatcher();
 	let courseData = { name: '', code: '', description: '' };
 
 	/**
@@ -106,6 +107,12 @@
 
 		createLoading = false;
 	};
+
+	afterNavigate(() => {
+		if ($userRole != 'administrator') {
+			goto('/enrolled-courses');
+		}
+	});
 
 	onMount(() => {
 		fetchCategories();

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -286,4 +287,32 @@ func GetEnrolledSection(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(&courseRsp)
+}
+
+func CompleteSection(w http.ResponseWriter, r *http.Request) {
+	courseId, err := strconv.ParseInt(r.PathValue("courseId"), 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	sectionId, err := strconv.ParseInt(r.PathValue("sectionId"), 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = service.CompleteSection(r.Context(), courseId, sectionId)
+	if err != nil {
+		log.Println(err)
+		if errors.Is(err, service.ErrNotAllowed) {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

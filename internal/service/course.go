@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"log"
 
 	"odyssey.lms/internal/db"
 	"odyssey.lms/internal/db/params"
@@ -159,7 +158,6 @@ func GetEnrolledCourse(ctx context.Context, courseId int64) (dto.EnrollCourseRes
 
 	sections, err := db.QUERY.GetEnrolledSectionsByCourseId(ctx, courseId)
 	if err != nil {
-		log.Println(err)
 		return courseRsp, err
 	}
 
@@ -189,7 +187,6 @@ func GetEnrolledSections(ctx context.Context, courseId int64) ([]dto.EnrollSecti
 
 	sections, err := db.QUERY.GetEnrolledSectionsByCourseId(ctx, courseId)
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
 
@@ -209,9 +206,40 @@ func GetEnrolledSection(ctx context.Context, courseId int64, sectionId int64) (d
 
 	section, err := db.QUERY.GetEnrolledSectionById(ctx, sectionId)
 	if err != nil {
-		log.Println(err)
 		return dto.EnrollSectionResponse{}, err
 	}
 
 	return section, nil
+}
+
+func CompleteSection(ctx context.Context, courseId int64, sectionId int64) error {
+	userId, ok := ctx.Value(middleware.USER_ID).(int64)
+	if !ok {
+		return errors.New("could not get user-id from context")
+	}
+
+	_, err := db.QUERY.GetCourseEnroll(ctx, userId, courseId)
+	if err != nil {
+		return ErrNotAllowed
+	}
+
+	_, err = db.QUERY.GetCourseSectionComplete(ctx, userId, sectionId)
+	if err != nil {
+		// Unexpected errors
+		// sql.ErrNoRows is expected when the user isn't enrolled yet
+		if !errors.Is(err, sql.ErrNoRows) {
+			return err
+		}
+	}
+	if err == nil {
+		// User already assigned
+		return nil
+	}
+
+	err = db.QUERY.CreateCourseSectionComplete(ctx, userId, sectionId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

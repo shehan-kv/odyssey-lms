@@ -1020,3 +1020,22 @@ func (q *Queries) GetEnrolledSectionById(ctx context.Context, sectionId int64) (
 
 	return section, err
 }
+
+func (q *Queries) GetCourseSectionComplete(ctx context.Context, userId int64, sectionId int64) (models.CourseSectionComplete, error) {
+	const query = `SELECT user_id, section_id FROM course_sections_complete
+	WHERE user_id = ? AND section_id = ?
+	`
+	row := q.db.QueryRowContext(ctx, query, userId, sectionId)
+
+	var section models.CourseSectionComplete
+	err := row.Scan(&section.UserId, &section.SectionId)
+
+	return section, err
+}
+
+func (q *Queries) CreateCourseSectionComplete(ctx context.Context, userId int64, sectionId int64) error {
+	const query = "INSERT INTO course_sections_complete(user_id, section_id) VALUES(?, ?)"
+	_, err := q.db.ExecContext(ctx, query, userId, sectionId)
+
+	return err
+}

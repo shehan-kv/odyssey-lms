@@ -53,4 +53,6 @@ type DBQuery interface {
 	GetEnrolledCourses(ctx context.Context, userId int64) ([]courseDto.CourseResponse, error)
 	GetEnrolledSectionsByCourseId(ctx context.Context, courseId int64) ([]courseDto.EnrollSectionResponse, error)
 	GetEnrolledSectionById(ctx context.Context, sectionId int64) (courseDto.EnrollSectionResponse, error)
+	GetCourseSectionComplete(ctx context.Context, userId int64, sectionId int64) (models.CourseSectionComplete, error)
+	CreateCourseSectionComplete(ctx context.Context, userId int64, sectionId int64) error
 }

@@ -6,6 +6,7 @@ type UserResponse struct {
 	LastName  string `json:"lastName"`
 	Email     string `json:"email"`
 	Role      string `json:"role"`
+	Bio       string `json:"bio"`
 	IsActive  bool   `json:"isActive"`
 	CreatedAt string `json:"createdAt"`
 	LastLogin string `json:"lastLogin"`

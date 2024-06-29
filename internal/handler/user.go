@@ -57,6 +57,18 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&resp)
 }
 
+func GetUserSelf(w http.ResponseWriter, r *http.Request) {
+
+	user, err := service.GetUserSelf(r.Context())
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(&user)
+}
+
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var createReq dto.UserCreateRequest
 

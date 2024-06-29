@@ -29,6 +29,7 @@ func RunApplication() {
 	http.Handle("GET /api/auth/is-signed-in", middleware.Authed(http.HandlerFunc(handler.IsSignedIn)))
 
 	http.HandleFunc("GET /api/user", handler.GetUsers)
+	http.Handle("GET /api/user/self", middleware.Authed(http.HandlerFunc(handler.GetUserSelf)))
 	http.HandleFunc("POST /api/user", handler.CreateUser)
 	http.HandleFunc("DELETE /api/user/{id}", handler.DeleteUser)
 	http.HandleFunc("POST /api/user/activate/{id}", handler.ActivateUser)

@@ -10,6 +10,7 @@ import (
 	"odyssey.lms/internal/db/params"
 	queryParams "odyssey.lms/internal/dto/params"
 	dto "odyssey.lms/internal/dto/user"
+	"odyssey.lms/internal/middleware"
 )
 
 func GetUsers(ctx context.Context, args queryParams.UserQueryParams) (dto.UsersResponse, error) {
@@ -28,6 +29,33 @@ func GetUsers(ctx context.Context, args queryParams.UserQueryParams) (dto.UsersR
 	resp.TotalCount = userCount
 	resp.Users = users
 	return resp, err
+}
+
+func GetUserSelf(ctx context.Context) (dto.UserResponse, error) {
+	var userRsp dto.UserResponse
+
+	userId, ok := ctx.Value(middleware.USER_ID).(int64)
+	if !ok {
+		return userRsp, errors.New("could not get user-id from context")
+	}
+
+	user, err := db.QUERY.FindUserById(ctx, userId)
+	if err != nil {
+		return userRsp, err
+	}
+
+	role, err := db.QUERY.FindRoleById(ctx, user.Role)
+
+	userRsp.FirstName = user.FirstName
+	userRsp.LastName = user.LastName
+	if user.Bio.Valid {
+		userRsp.Bio = user.Bio.String
+	}
+	userRsp.Email = user.Email
+	userRsp.IsActive = user.IsActive
+	userRsp.Role = role.Name
+
+	return userRsp, nil
 }
 
 var ErrInvalidRole = errors.New("role is invalid")

@@ -259,3 +259,31 @@ func GetEnrolledSections(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(&courseRsp)
 }
+
+func GetEnrolledSection(w http.ResponseWriter, r *http.Request) {
+	courseId, err := strconv.ParseInt(r.PathValue("courseId"), 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	sectionId, err := strconv.ParseInt(r.PathValue("sectionId"), 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	courseRsp, err := service.GetEnrolledSection(r.Context(), courseId, sectionId)
+	if err != nil {
+		if errors.Is(err, service.ErrNotAllowed) {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(&courseRsp)
+}

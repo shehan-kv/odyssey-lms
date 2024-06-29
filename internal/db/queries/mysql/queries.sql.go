@@ -1006,3 +1006,17 @@ func (q *Queries) GetEnrolledSectionsByCourseId(ctx context.Context, courseId in
 
 	return sectionRsp, nil
 }
+
+func (q *Queries) GetEnrolledSectionById(ctx context.Context, sectionId int64) (courseDto.EnrollSectionResponse, error) {
+	const query = `SELECT cs.id, cs.title, cs.content, CASE WHEN csc.section_id IS NOT NULL THEN TRUE ELSE FALSE END AS isComplete 
+	FROM course_sections cs
+	LEFT JOIN course_sections_complete csc ON csc.section_id = cs.id
+	WHERE cs.id = ?
+	`
+	row := q.db.QueryRowContext(ctx, query, sectionId)
+
+	var section courseDto.EnrollSectionResponse
+	err := row.Scan(&section.Id, &section.Title, &section.Content, &section.IsComplete)
+
+	return section, err
+}

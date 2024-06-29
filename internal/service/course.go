@@ -195,3 +195,23 @@ func GetEnrolledSections(ctx context.Context, courseId int64) ([]dto.EnrollSecti
 
 	return sections, nil
 }
+
+func GetEnrolledSection(ctx context.Context, courseId int64, sectionId int64) (dto.EnrollSectionResponse, error) {
+	userId, ok := ctx.Value(middleware.USER_ID).(int64)
+	if !ok {
+		return dto.EnrollSectionResponse{}, errors.New("could not get user-id from context")
+	}
+
+	_, err := db.QUERY.GetCourseEnroll(ctx, userId, courseId)
+	if err != nil {
+		return dto.EnrollSectionResponse{}, ErrNotAllowed
+	}
+
+	section, err := db.QUERY.GetEnrolledSectionById(ctx, sectionId)
+	if err != nil {
+		log.Println(err)
+		return dto.EnrollSectionResponse{}, err
+	}
+
+	return section, nil
+}

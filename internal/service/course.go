@@ -53,6 +53,12 @@ func CreateCourse(ctx context.Context, args dto.CourseCreateRequest) error {
 		}
 	}
 
+	_ = db.QUERY.CreateEvent(ctx, params.CreateEvent{
+		Type:        "course",
+		Severity:    "info",
+		Description: "Course created: " + args.Name,
+	})
+
 	return nil
 }
 

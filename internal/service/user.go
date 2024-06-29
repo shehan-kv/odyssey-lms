@@ -113,11 +113,17 @@ func DeleteUser(ctx context.Context, userId int64) error {
 	}
 
 	err = db.QUERY.DeleteUserById(ctx, int64(userId))
+
+	_ = db.QUERY.CreateEvent(ctx, params.CreateEvent{
+		Type:        "user",
+		Severity:    "info",
+		Description: "User account Deleted: " + existingUser.FirstName + " " + existingUser.LastName,
+	})
 	return err
 }
 
 func ActivateUser(ctx context.Context, userId int64) error {
-	_, err := db.QUERY.FindUserById(ctx, userId)
+	user, err := db.QUERY.FindUserById(ctx, userId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ErrUserNotFound
@@ -126,6 +132,13 @@ func ActivateUser(ctx context.Context, userId int64) error {
 	}
 
 	err = db.QUERY.SetUserIsActive(ctx, int64(userId), true)
+
+	_ = db.QUERY.CreateEvent(ctx, params.CreateEvent{
+		Type:        "user",
+		Severity:    "info",
+		Description: "User account activated: " + user.FirstName + " " + user.LastName,
+	})
+
 	return err
 }
 
@@ -155,5 +168,12 @@ func DeactivateUser(ctx context.Context, userId int64) error {
 	}
 
 	err = db.QUERY.SetUserIsActive(ctx, int64(userId), false)
+
+	_ = db.QUERY.CreateEvent(ctx, params.CreateEvent{
+		Type:        "user",
+		Severity:    "info",
+		Description: "User account deactivated: " + existingUser.FirstName + " " + existingUser.LastName,
+	})
+
 	return err
 }

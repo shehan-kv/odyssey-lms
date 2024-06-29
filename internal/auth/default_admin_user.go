@@ -42,6 +42,12 @@ func CreateDefaultAdminUser() {
 		log.Fatal(colors.RedBold + "[ ERROR ] Failed to create admin account" + colors.Reset)
 	}
 
+	_ = db.QUERY.CreateEvent(ctx, params.CreateEvent{
+		Type:        "user",
+		Severity:    "critical",
+		Description: "Default administrator account in use",
+	})
+
 	err = db.QUERY.AssignUserRole(ctx, params.AssignUserRole{UserID: adminId, RoleName: "administrator"})
 	if err != nil {
 		_ = db.QUERY.DeleteUserById(ctx, adminId)

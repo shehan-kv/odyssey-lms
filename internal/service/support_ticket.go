@@ -30,6 +30,12 @@ func CreateSupportTicket(ctx context.Context, args dto.TicketCreateRequest) erro
 		Status:      "unresolved",
 	})
 
+	_ = db.QUERY.CreateEvent(ctx, params.CreateEvent{
+		Type:        "user",
+		Severity:    "info",
+		Description: "Support ticket created by",
+	})
+
 	return err
 }
 
@@ -184,6 +190,12 @@ func ResolveTicket(ctx context.Context, ticketId int64) error {
 	}
 
 	err = db.QUERY.SetTicketStatus(ctx, "resolved", ticketId)
+
+	_ = db.QUERY.CreateEvent(ctx, params.CreateEvent{
+		Type:        "user",
+		Severity:    "info",
+		Description: "Support ticket closed",
+	})
 
 	return err
 }

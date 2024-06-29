@@ -17,6 +17,7 @@ type DBQuery interface {
 	GetUsers(ctx context.Context, params queryParams.UserQueryParams) ([]usrDto.UserResponse, error)
 	FindUserById(ctx context.Context, userId int64) (models.User, error)
 	CreateUser(ctx context.Context, arg params.CreateUser) (int64, error)
+	UpdateUser(ctx context.Context, userId int64, arg params.UpdateUser) error
 	CountUsersByRole(ctx context.Context, role string) (int64, error)
 	CountUsers(ctx context.Context, arg queryParams.UserQueryParams) (int64, error)
 	DeleteUserById(ctx context.Context, id int64) error

@@ -208,3 +208,21 @@ func DeactivateUser(ctx context.Context, userId int64) error {
 
 	return err
 }
+
+func UserUpdateSelf(ctx context.Context, args dto.UserSelfUpdateRequest) error {
+	userId, ok := ctx.Value(middleware.USER_ID).(int64)
+	if !ok {
+		return errors.New("could not get user-id from context")
+	}
+
+	params := params.UpdateUser{}
+	params.FirstName = args.FirstName
+	params.LastName = args.LastName
+	if args.Bio != "" {
+		params.Bio = sql.NullString{String: args.Bio, Valid: true}
+	}
+
+	err := db.QUERY.UpdateUser(ctx, userId, params)
+
+	return err
+}

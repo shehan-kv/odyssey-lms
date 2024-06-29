@@ -154,6 +154,13 @@ func (q *Queries) CreateUser(ctx context.Context, arg params.CreateUser) (int64,
 	return id, err
 }
 
+func (q *Queries) UpdateUser(ctx context.Context, userId int64, arg params.UpdateUser) error {
+	const query = "UPDATE users SET first_name = ?, last_name = ?, bio = ? WHERE id = ?"
+	_, err := q.db.ExecContext(ctx, query, arg.FirstName, arg.LastName, arg.Bio, userId)
+
+	return err
+}
+
 func (q *Queries) CountUsersByRole(ctx context.Context, role string) (int64, error) {
 
 	const query = `SELECT count(*) FROM users

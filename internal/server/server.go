@@ -30,6 +30,7 @@ func RunApplication() {
 
 	http.HandleFunc("GET /api/user", handler.GetUsers)
 	http.Handle("GET /api/user/self", middleware.Authed(http.HandlerFunc(handler.GetUserSelf)))
+	http.Handle("PUT /api/user/self", middleware.Authed(http.HandlerFunc(handler.UserUpdateSelf)))
 	http.HandleFunc("POST /api/user", handler.CreateUser)
 	http.HandleFunc("DELETE /api/user/{id}", handler.DeleteUser)
 	http.HandleFunc("POST /api/user/activate/{id}", handler.ActivateUser)

@@ -167,3 +167,27 @@ func DeactivateUser(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+func UserUpdateSelf(w http.ResponseWriter, r *http.Request) {
+	var updateReq dto.UserSelfUpdateRequest
+
+	err := json.NewDecoder(r.Body).Decode(&updateReq)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = updateReq.Validate()
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = service.UserUpdateSelf(r.Context(), updateReq)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}

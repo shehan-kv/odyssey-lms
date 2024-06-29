@@ -113,7 +113,7 @@ func (q *Queries) GetUsers(ctx context.Context, arg queryParams.UserQueryParams)
 }
 
 func (q *Queries) FindUserById(ctx context.Context, userId int64) (models.User, error) {
-	const query = `SELECT id, first_name, last_name, email, created_at, last_login, is_active, role FROM users
+	const query = `SELECT id, first_name, last_name, email, created_at, last_login, is_active, role, bio FROM users
 	WHERE id = ?
 	`
 	row := q.db.QueryRowContext(ctx, query, userId)
@@ -128,6 +128,7 @@ func (q *Queries) FindUserById(ctx context.Context, userId int64) (models.User, 
 		&user.LastLogin,
 		&user.IsActive,
 		&user.Role,
+		&user.Bio,
 	)
 
 	return user, err

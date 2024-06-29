@@ -10,12 +10,12 @@
 
 	/**
 	 * @type {{
-	 * 	img: string,
+	 * 	id: number,
+	 * 	image: string,
 	 * 	name: string,
 	 * 	code: string,
+	 * 	category:string,
 	 * 	description:string,
-	 * 	instructor : string[],
-	 * 	completed: number
 	 * }[]}
 	 */
 	let data;
@@ -24,23 +24,22 @@
 		loading = true;
 		fetchError = false;
 
-		fetch('/api/course/enrolled')
+		fetch('/api/course/enroll')
 			.then((response) => {
-				if (response.status != 200) {
+				if (!response.ok) {
 					fetchError = true;
-					loading = false;
 				} else {
 					return response.json();
 				}
 			})
 			.then((parsedData) => {
 				data = parsedData;
-				loading = false;
 			})
 			.catch(() => {
 				fetchError = true;
-				loading = false;
 			});
+
+		loading = false;
 	};
 
 	onMount(() => {

@@ -131,6 +131,29 @@ func GetSupportTicketsSelf(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&ticketRsp)
 }
 
+func GetSupportTicketSelf(w http.ResponseWriter, r *http.Request) {
+	pathId := r.PathValue("id")
+
+	ticketId, err := strconv.ParseInt(pathId, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	ticketRsp, err := service.GetSupportTicketSelf(r.Context(), ticketId)
+	if err != nil {
+		if errors.Is(err, service.ErrNotAllowed) {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(&ticketRsp)
+}
+
 func GetSupportTicketById(w http.ResponseWriter, r *http.Request) {
 	pathId := r.PathValue("id")
 

@@ -82,6 +82,39 @@ func GetSupportTicketsSelf(ctx context.Context, args queryParams.TicketQueryPara
 	return ticketsRsp, nil
 }
 
+func GetSupportTicketSelf(ctx context.Context, ticketId int64) (dto.TicketMessagesResponse, error) {
+	var ticketRsp dto.TicketMessagesResponse
+
+	userId, ok := ctx.Value(middleware.USER_ID).(int64)
+	if !ok {
+		return ticketRsp, errors.New("could not get user-id from context")
+	}
+
+	existingTicket, err := db.QUERY.FindTicketById(ctx, ticketId)
+	if err != nil {
+		return ticketRsp, err
+	}
+
+	if existingTicket.UserId != userId {
+		return ticketRsp, ErrNotAllowed
+	}
+
+	tickets, err := db.QUERY.GetTicketByIdWithUser(ctx, ticketId)
+	if err != nil {
+		return ticketRsp, err
+	}
+
+	messages, err := db.QUERY.GetTicketMessagesByTicketId(ctx, ticketId)
+	if err != nil {
+		return ticketRsp, err
+	}
+
+	ticketRsp.Ticket = tickets
+	ticketRsp.Messages = messages
+
+	return ticketRsp, nil
+}
+
 func GetSupportTicketById(ctx context.Context, ticketId int64) (dto.TicketMessagesResponse, error) {
 	var ticketRsp dto.TicketMessagesResponse
 

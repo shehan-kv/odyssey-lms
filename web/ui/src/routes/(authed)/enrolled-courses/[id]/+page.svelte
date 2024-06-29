@@ -26,7 +26,7 @@
 		loading = true;
 		fetchError = false;
 
-		fetch(`/api/course/enroll/${$page.params.id}`)
+		fetch(`/api/course/${$page.params.id}/enroll`)
 			.then((response) => {
 				if (!response.ok) {
 					fetchError = true;

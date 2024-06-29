@@ -182,7 +182,7 @@
 			</Table.Header>
 			<Table.Body>
 				{#each data.tickets as ticket}
-					<Table.Row>
+					<Table.Row on:click={() => goto(`/my-support-tickets/${ticket.id}`)}>
 						<Table.Cell>
 							{ticket.createdAt ? new Date(ticket.createdAt).toLocaleString() : 'Not Found'}
 						</Table.Cell>

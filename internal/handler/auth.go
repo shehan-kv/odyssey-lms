@@ -26,6 +26,7 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	jwtToken, err := service.SignIn(r.Context(), signInData)
@@ -79,6 +80,33 @@ func SignOut(w http.ResponseWriter, r *http.Request) {
 }
 
 func IsSignedIn(w http.ResponseWriter, r *http.Request) {
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func SignUp(w http.ResponseWriter, r *http.Request) {
+	var signUpData dto.SignUpRequest
+
+	err := json.NewDecoder(r.Body).Decode(&signUpData)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = signUpData.Validate()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = service.SignUp(r.Context(), signUpData)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 }

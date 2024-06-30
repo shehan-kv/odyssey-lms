@@ -25,6 +25,7 @@ func init() {
 func RunApplication() {
 
 	http.HandleFunc("POST /api/auth/sign-in", handler.SignIn)
+	http.HandleFunc("POST /api/auth/sign-up", handler.SignUp)
 	http.HandleFunc("POST /api/auth/sign-out", handler.SignOut)
 	http.Handle("GET /api/auth/is-signed-in", middleware.Authed(http.HandlerFunc(handler.IsSignedIn)))
 

@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"log"
 
 	"odyssey.lms/internal/db"
 	"odyssey.lms/internal/db/params"
@@ -44,7 +43,6 @@ func GetSupportTickets(ctx context.Context, args queryParams.TicketQueryParams) 
 	var ticketsRsp dto.TicketsResponse
 	tickets, err := db.QUERY.GetTickets(ctx, args)
 	if err != nil {
-		log.Println(err)
 		return ticketsRsp, err
 	}
 
@@ -73,7 +71,6 @@ func GetSupportTicketsSelf(ctx context.Context, args queryParams.TicketQueryPara
 
 	tickets, err := db.QUERY.GetTicketsByUserId(ctx, userId, args)
 	if err != nil {
-		log.Println(err)
 		return ticketsRsp, err
 	}
 

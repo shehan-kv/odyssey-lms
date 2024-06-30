@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -304,7 +303,6 @@ func CompleteSection(w http.ResponseWriter, r *http.Request) {
 
 	err = service.CompleteSection(r.Context(), courseId, sectionId)
 	if err != nil {
-		log.Println(err)
 		if errors.Is(err, service.ErrNotAllowed) {
 			w.WriteHeader(http.StatusForbidden)
 			return

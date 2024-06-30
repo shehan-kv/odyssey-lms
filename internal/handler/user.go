@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -220,7 +219,6 @@ func UserUpdatePasswordSelf(w http.ResponseWriter, r *http.Request) {
 func GetUserSignUpSummary(w http.ResponseWriter, r *http.Request) {
 	summaryResp, err := service.GetUserSignUpSummary(r.Context())
 	if err != nil {
-		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

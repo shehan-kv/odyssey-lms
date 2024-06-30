@@ -17,7 +17,7 @@ import (
 
 func (q *Queries) FindUserWithPasswordByEmail(ctx context.Context, email string) (models.User, error) {
 
-	const query = `SELECT * FROM users WHERE email = ?`
+	const query = `SELECT id, first_name, last_name, email, password, created_at, is_active, bio FROM users WHERE email = ?`
 	row := q.db.QueryRowContext(ctx, query, email)
 
 	var user models.User
@@ -28,9 +28,7 @@ func (q *Queries) FindUserWithPasswordByEmail(ctx context.Context, email string)
 		&user.LastName,
 		&user.Email,
 		&user.Password,
-		&user.Role,
 		&user.CreatedAt,
-		&user.LastLogin,
 		&user.IsActive,
 		&user.Bio,
 	)

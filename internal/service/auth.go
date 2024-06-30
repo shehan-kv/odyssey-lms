@@ -24,6 +24,10 @@ func SignIn(ctx context.Context, request dto.SignInRequest) (string, error) {
 		return "", err
 	}
 
+	if !existingUser.IsActive {
+		return "", errors.New("user not active")
+	}
+
 	isPasswordCorrect := auth.CompareHashAndPassword(existingUser.Password, request.Password)
 	if !isPasswordCorrect {
 		return "", ErrInvalidPassword

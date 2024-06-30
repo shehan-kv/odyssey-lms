@@ -168,6 +168,60 @@ func (q *Queries) SetUserPassword(ctx context.Context, userId int64, password st
 	return err
 }
 
+func (q *Queries) GetSignUpStats(ctx context.Context) ([]usrDto.SignUpStat, error) {
+
+	const query = `SELECT DATE_TRUNC('month', created_at) AS month, COUNT(*) AS user_count
+	FROM users
+	WHERE created_at >= DATE_SUB(CURRENT_DATE, INTERVAL 1 YEAR)
+	GROUP BY DATE_TRUNC('month', created_at)
+	ORDER BY month
+	`
+
+	var statRsp = make([]usrDto.SignUpStat, 0)
+	rows, err := q.db.QueryContext(ctx, query)
+	if err != nil {
+		return statRsp, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var response usrDto.SignUpStat
+		err := rows.Scan(&response.Month, &response.Count)
+		if err != nil {
+			return statRsp, err
+		}
+
+		statRsp = append(statRsp, response)
+	}
+
+	var pastYearRsp = make([]usrDto.SignUpStat, 12)
+	for i := 12; i > 0; i-- {
+		var month string
+		if i != 1 {
+			month = time.Now().AddDate(0, -i, 0).Format("2006-01")
+		} else {
+			month = time.Now().Format("2006-01")
+		}
+
+		var tempStat *usrDto.SignUpStat
+		for _, s := range statRsp {
+			if s.Month == month {
+				tempStat = &s
+				break
+			}
+		}
+
+		if tempStat != nil {
+			pastYearRsp[12-(i)] = *tempStat
+		} else {
+			pastYearRsp[12-(i)] = usrDto.SignUpStat{Month: month, Count: 0}
+		}
+	}
+
+	return pastYearRsp, err
+}
+
 func (q *Queries) CountUsersByRole(ctx context.Context, role string) (int64, error) {
 
 	const query = `SELECT count(*) FROM users 

@@ -257,3 +257,28 @@ func UserUpdatePasswordSelf(ctx context.Context, args dto.UserSelfUpdatePassword
 
 	return err
 }
+
+func GetUserSignUpSummary(ctx context.Context) (dto.SignUpSummaryResponse, error) {
+	var summaryResp dto.SignUpSummaryResponse
+	stats, err := db.QUERY.GetSignUpStats(ctx)
+	if err != nil {
+		return summaryResp, err
+	}
+
+	studentCount, err := db.QUERY.CountUsersByRole(ctx, "student")
+	if err != nil {
+		return summaryResp, err
+	}
+
+	adminCount, err := db.QUERY.CountUsersByRole(ctx, "administrator")
+	if err != nil {
+		return summaryResp, err
+	}
+
+	summaryResp.AllUsers = studentCount + adminCount
+	summaryResp.Students = studentCount
+	summaryResp.Administrators = adminCount
+	summaryResp.Stats = stats
+
+	return summaryResp, nil
+}

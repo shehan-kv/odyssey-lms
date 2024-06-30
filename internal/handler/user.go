@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -214,4 +215,16 @@ func UserUpdatePasswordSelf(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func GetUserSignUpSummary(w http.ResponseWriter, r *http.Request) {
+	summaryResp, err := service.GetUserSignUpSummary(r.Context())
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(&summaryResp)
 }

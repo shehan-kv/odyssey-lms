@@ -29,6 +29,7 @@ func RunApplication() {
 	http.Handle("GET /api/auth/is-signed-in", middleware.Authed(http.HandlerFunc(handler.IsSignedIn)))
 
 	http.HandleFunc("GET /api/user", handler.GetUsers)
+	http.Handle("GET /api/user/sign-up-summary", middleware.Authed(http.HandlerFunc(handler.GetUserSignUpSummary)))
 	http.Handle("GET /api/user/self", middleware.Authed(http.HandlerFunc(handler.GetUserSelf)))
 	http.Handle("PUT /api/user/self", middleware.Authed(http.HandlerFunc(handler.UserUpdateSelf)))
 	http.Handle("PUT /api/user/self/password", middleware.Authed(http.HandlerFunc(handler.UserUpdatePasswordSelf)))

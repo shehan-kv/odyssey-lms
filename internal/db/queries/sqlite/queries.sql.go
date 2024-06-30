@@ -60,6 +60,7 @@ func (q *Queries) GetUsers(ctx context.Context, arg queryParams.UserQueryParams)
 		}
 	}
 
+	sb.WriteString(" ORDER BY created_at DESC")
 	if arg.Page > 0 {
 		offset := (arg.Page - 1) * arg.Limit
 		sb.WriteString(" LIMIT ? OFFSET ?")

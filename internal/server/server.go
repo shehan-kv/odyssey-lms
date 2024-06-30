@@ -19,6 +19,7 @@ import (
 func init() {
 	db.RunMigrations()
 	auth.CreateDefaultAdminUser()
+
 }
 
 func RunApplication() {
@@ -72,6 +73,13 @@ func RunApplication() {
 		log.Fatalln("[ ERROR ] Could not get current working directory")
 	}
 	uploadsFs := os.DirFS(path.Join(cwd, "uploads"))
+
+	if _, err := os.Stat(path.Join(cwd, "uploads")); os.IsNotExist(err) {
+		err := os.Mkdir(path.Join(cwd, "uploads"), os.ModePerm)
+		if err != nil {
+			log.Fatal(colors.RedBold + "[ ERROR ] Failed to create uploads directory " + colors.Reset)
+		}
+	}
 
 	http.Handle("GET /_app/", http.FileServerFS(staticUiFs))
 	http.Handle("GET /favicon.png", http.FileServerFS(staticUiFs))

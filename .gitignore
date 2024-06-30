@@ -6,3 +6,9 @@
 
 # DB Files
 *.db
+
+# EXE Files
+*.exe
+
+# Uploads Directory
+uploads

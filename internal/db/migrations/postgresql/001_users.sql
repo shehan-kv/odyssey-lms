@@ -5,10 +5,11 @@ CREATE TABLE IF NOT EXISTS users (
   last_name VARCHAR(255) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
   password TEXT NOT NULL,
-  avatar_name TEXT,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   last_login TIMESTAMPTZ,
-  bio TEXT
+  is_active BOOLEAN,
+  bio TEXT,
+  role BIGINT FOREIGN KEY REFERENCES roles(id)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS users_email_idx ON users(email);

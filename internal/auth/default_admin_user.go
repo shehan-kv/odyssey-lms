@@ -14,8 +14,7 @@ import (
 func CreateDefaultAdminUser() {
 
 	ctx := context.Background()
-	dbQuery := db.GetDBQuery()
-	adminCount, _ := dbQuery.CountUsersByRole(ctx, "administrator")
+	adminCount, _ := db.QUERY.CountUsersByRole(ctx, "administrator")
 
 	if adminCount != 0 {
 		return
@@ -27,11 +26,12 @@ func CreateDefaultAdminUser() {
 		log.Fatal(colors.RedBold + "[ ERROR ] Failed to create admin account" + colors.Reset)
 	}
 
-	adminUser, err := dbQuery.CreateUser(ctx, params.CreateUser{
+	adminId, err := db.QUERY.CreateUser(ctx, params.CreateUser{
 		FirstName: "Default",
 		LastName:  "Administrator",
 		Email:     "admin@lms.local",
 		Password:  hashedPassword,
+		IsActive:  true,
 		Bio: sql.NullString{
 			String: "This is the default admin account of the system, created when other admin " +
 				"accounts couldn't be found. Please delete this account once you create an admin account",
@@ -42,9 +42,15 @@ func CreateDefaultAdminUser() {
 		log.Fatal(colors.RedBold + "[ ERROR ] Failed to create admin account" + colors.Reset)
 	}
 
-	_, err = dbQuery.AssignUserRole(ctx, params.AssignUserRole{UserID: adminUser.ID, RoleName: "administrator"})
+	_ = db.QUERY.CreateEvent(ctx, params.CreateEvent{
+		Type:        "user",
+		Severity:    "critical",
+		Description: "Default administrator account in use",
+	})
+
+	err = db.QUERY.AssignUserRole(ctx, params.AssignUserRole{UserID: adminId, RoleName: "administrator"})
 	if err != nil {
-		_ = dbQuery.DeleteUserById(ctx, adminUser.ID)
+		_ = db.QUERY.DeleteUserById(ctx, adminId)
 		log.Fatal(colors.RedBold + "[ ERROR ] Failed to create admin account" + colors.Reset)
 	}
 

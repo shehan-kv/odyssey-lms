@@ -38,6 +38,7 @@ func GetDatabaseConnection() *sql.DB {
 }
 
 func connectToDB(engine string, connString string) *sql.DB {
+	CheckDBSettings()
 
 	log.Println(colors.Blue + "[ INFO ] Connecting to database..." + colors.Reset)
 

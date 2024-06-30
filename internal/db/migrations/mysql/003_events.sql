@@ -1,0 +1,12 @@
+-- +goose Up
+CREATE TABLE IF NOT EXISTS events (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  type VARCHAR(255) NOT NULL, 
+  description VARCHAR(255) NOT NULL,
+  severity VARCHAR(255) NOT NULL,
+);
+
+
+-- +goose Down
+DROP TABLE IF EXISTS events;

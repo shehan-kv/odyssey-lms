@@ -1,0 +1,15 @@
+-- +goose Up
+CREATE TABLE IF NOT EXISTS tickets (
+  id BIGSERIAL PRIMARY KEY,
+  subject VARCHAR(255) NOT NULL, 
+  description TEXT NOT NULL,
+  user_id BIGINT FOREIGN KEY REFERENCES users(id), 
+  type VARCHAR(255) NOT NULL, 
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  closed_at TIMESTAMPTZ,
+  status VARCHAR(255) NOT NULL
+);
+
+
+-- +goose Down
+DROP TABLE IF EXISTS tickets;

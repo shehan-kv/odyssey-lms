@@ -38,6 +38,8 @@ func SignIn(ctx context.Context, request dto.SignInRequest) (string, error) {
 		return "", err
 	}
 
+	_ = db.QUERY.SetUserLastSignInTime(ctx, existingUser.ID)
+
 	return jwtToken, nil
 }
 

@@ -164,6 +164,13 @@ func (q *Queries) SetUserPassword(ctx context.Context, userId int64, password st
 	return err
 }
 
+func (q *Queries) SetUserLastSignInTime(ctx context.Context, userId int64) error {
+	const query = "UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = $1"
+	_, err := q.db.ExecContext(ctx, query, userId)
+
+	return err
+}
+
 func (q *Queries) GetSignUpStats(ctx context.Context) ([]usrDto.SignUpStat, error) {
 
 	const query = `SELECT DATE_TRUNC('month', created_at) AS month, COUNT(*) AS user_count

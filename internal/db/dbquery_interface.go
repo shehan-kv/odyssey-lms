@@ -19,6 +19,7 @@ type DBQuery interface {
 	CreateUser(ctx context.Context, arg params.CreateUser) (int64, error)
 	UpdateUser(ctx context.Context, userId int64, arg params.UpdateUser) error
 	SetUserPassword(ctx context.Context, userId int64, password string) error
+	SetUserLastSignInTime(ctx context.Context, userId int64) error
 	GetSignUpStats(ctx context.Context) ([]usrDto.SignUpStat, error)
 	CountUsersByRole(ctx context.Context, role string) (int64, error)
 	CountUsers(ctx context.Context, arg queryParams.UserQueryParams) (int64, error)

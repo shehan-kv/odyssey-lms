@@ -22,8 +22,6 @@ var mysqlMigrations embed.FS
 
 func RunMigrations() {
 
-	dbConn := GetDatabaseConnection()
-
 	dbEngine := strings.ToLower(os.Getenv("DB_VARIANT"))
 
 	goose.SetLogger(goose.NopLogger())

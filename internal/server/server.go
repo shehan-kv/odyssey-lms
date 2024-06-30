@@ -17,7 +17,6 @@ import (
 )
 
 func init() {
-	db.CheckDBSettings()
 	db.RunMigrations()
 	auth.CreateDefaultAdminUser()
 }

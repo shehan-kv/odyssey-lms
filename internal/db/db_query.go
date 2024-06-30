@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	"os"
 	"strings"
 
@@ -9,12 +10,12 @@ import (
 	"odyssey.lms/internal/db/queries/sqlite"
 )
 
-var QUERY = GetDBQuery()
+var dbConn = GetDatabaseConnection()
+var QUERY = GetDBQuery(dbConn)
 
-func GetDBQuery() DBQuery {
+func GetDBQuery(dbConn *sql.DB) DBQuery {
 
 	dbEngine := strings.ToLower(os.Getenv("DB_VARIANT"))
-	dbConn := GetDatabaseConnection()
 
 	switch dbEngine {
 	case "sqlite":

@@ -11,7 +11,6 @@
 	 * @type {{
 	 * 	allUsers: number,
 	 *  students: number,
-	 * 	instructors: number,
 	 *  administrators: number,
 	 *  stats: {month: string, count: number }[]
 	 * }}
@@ -25,7 +24,7 @@
 		loading = true;
 		fetchError = false;
 
-		fetch('/api/user/register-summary')
+		fetch('/api/user/sign-up-summary')
 			.then((response) => {
 				if (response.status != 200) {
 					fetchError = true;
@@ -151,7 +150,7 @@
 			<canvas bind:this={chart}></canvas>
 		</div>
 
-		<div class="flex flex-wrap gap-10 justify-between">
+		<div class="flex flex-wrap gap-20">
 			<div class="space-y-1">
 				<p class="text-xs font-semibold text-neutral-600 dark:text-neutral-300">All Users</p>
 				<p class="text-3xl">
@@ -167,16 +166,6 @@
 				<p class="text-3xl">
 					{#if data && data.students}
 						{data.students}
-					{:else}
-						N/A
-					{/if}
-				</p>
-			</div>
-			<div class="space-y-1">
-				<p class="text-xs font-semibold text-neutral-600 dark:text-neutral-300">Instructors</p>
-				<p class="text-3xl">
-					{#if data && data.instructors}
-						{data.instructors}
 					{:else}
 						N/A
 					{/if}

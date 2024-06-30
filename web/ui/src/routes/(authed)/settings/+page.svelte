@@ -3,6 +3,7 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { Toaster } from '$lib/components/ui/sonner';
+	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
 	import { MoveRight, Settings } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
@@ -10,14 +11,11 @@
 	let loading = true;
 	let fetchError = false;
 
-	/**
-	 * @type {{
-	 * 	id: number,
-	 *  firstName: string,
-	 *  lastName: string
-	 * }}
-	 */
-	let data;
+	let nameData = {
+		firstName: '',
+		lastName: '',
+		bio: ''
+	};
 
 	const fetchData = () => {
 		loading = true;
@@ -25,21 +23,21 @@
 
 		fetch(`/api/user/self`)
 			.then((response) => {
-				if (response.status != 200) {
+				if (!response.ok) {
 					fetchError = true;
-					loading = false;
 				} else {
 					return response.json();
 				}
 			})
 			.then((parsedData) => {
-				data = parsedData;
-				loading = false;
+				nameData.firstName = parsedData.firstName;
+				nameData.lastName = parsedData.lastName;
+				nameData.bio = parsedData.bio;
 			})
 			.catch(() => {
 				fetchError = true;
-				loading = false;
 			});
+		loading = false;
 	};
 
 	onMount(() => {
@@ -49,15 +47,20 @@
 	let nameUpdating = false;
 	function updateName() {
 		nameUpdating = true;
-		fetch(`/api/user/self/name`, {
+		fetch(`/api/user/self`, {
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({ firstName: data.firstName, lastName: data.lastName })
+			body: JSON.stringify({
+				firstName: nameData.firstName,
+				lastName: nameData.lastName,
+				bio: nameData.bio
+			})
 		})
 			.then((response) => {
-				if (response.status != 200) {
+				console.log('calling updatenmae');
+				if (!response.ok) {
 					nameUpdating = false;
 					toast.error('Name could not be updated');
 				} else {
@@ -66,8 +69,11 @@
 				}
 			})
 			.catch(() => {
+				nameUpdating = false;
 				toast.error('Name could not be updated');
 			});
+
+		nameUpdating = false;
 	}
 
 	let passwordData = {
@@ -77,7 +83,14 @@
 	};
 	let passwordUpdating = false;
 	function updatePassword() {
-		nameUpdating = true;
+		passwordUpdating = true;
+
+		if (passwordData.newPassword !== passwordData.confirmNewPassword) {
+			passwordUpdating = false;
+			toast.error("Passwords don't match");
+			return;
+		}
+
 		fetch(`/api/user/self/password`, {
 			method: 'PUT',
 			headers: {
@@ -86,8 +99,7 @@
 			body: JSON.stringify(passwordData)
 		})
 			.then((response) => {
-				if (response.status != 200) {
-					nameUpdating = false;
+				if (!response.ok) {
 					toast.error('Password could not be updated');
 				} else {
 					toast.success('Password updated successfully');
@@ -99,6 +111,7 @@
 			.catch(() => {
 				toast.error('Password could not be updated');
 			});
+		passwordUpdating = false;
 	}
 </script>
 
@@ -121,15 +134,20 @@
 			<form on:submit|preventDefault={updateName} class="mt-3 space-y-4">
 				<div class="space-y-1.5">
 					<Label for="firstName">First Name</Label>
-					<Input type="text" id="firstName" />
+					<Input type="text" id="firstName" bind:value={nameData.firstName} required />
 				</div>
 				<div class="space-y-1.5">
 					<Label for="lastName">Last Name</Label>
-					<Input type="text" id="lastName" />
+					<Input type="text" id="lastName" bind:value={nameData.lastName} required />
 				</div>
-				<Button disabled={nameUpdating} type="submit" class="ml-auto"
-					>{nameUpdating ? 'Updating...' : 'Update'} <MoveRight class="ml-3" /></Button
-				>
+				<div class="space-y-1.5">
+					<Label for="bio">Bio</Label>
+					<Textarea type="text" id="bio" bind:value={nameData.bio} />
+				</div>
+				<Button disabled={nameUpdating} type="submit" class="ml-auto">
+					{nameUpdating ? 'Updating...' : 'Update'}
+					<MoveRight class="ml-3" />
+				</Button>
 			</form>
 		</div>
 		<div>
@@ -138,11 +156,16 @@
 			<form on:submit|preventDefault={updatePassword} class="mt-3 space-y-4">
 				<div class="space-y-1.5">
 					<Label for="currentPassword">Current Password</Label>
-					<Input type="password" id="currentPassword" bind:value={passwordData.currentPassword} />
+					<Input
+						type="password"
+						id="currentPassword"
+						bind:value={passwordData.currentPassword}
+						required
+					/>
 				</div>
 				<div class="space-y-1.5">
 					<Label for="newPassword">New Password</Label>
-					<Input type="password" id="newPassword" bind:value={passwordData.newPassword} />
+					<Input type="password" id="newPassword" bind:value={passwordData.newPassword} required />
 				</div>
 				<div class="space-y-1.5">
 					<Label for="confirmNewPassword">Confirm New Password</Label>
@@ -150,11 +173,13 @@
 						type="password"
 						id="confirmNewPassword"
 						bind:value={passwordData.confirmNewPassword}
+						required
 					/>
 				</div>
-				<Button disabled={passwordUpdating} type="submit"
-					>{passwordUpdating ? 'Updating...' : 'Update'} <MoveRight class="ml-3" /></Button
-				>
+				<Button disabled={passwordUpdating} type="submit">
+					{passwordUpdating ? 'Updating...' : 'Update'}
+					<MoveRight class="ml-3" />
+				</Button>
 			</form>
 		</div>
 	</div>

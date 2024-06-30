@@ -3,7 +3,6 @@ package mysql
 import (
 	"context"
 	"database/sql"
-	"strconv"
 	"strings"
 	"time"
 
@@ -44,15 +43,14 @@ func (q *Queries) GetUsers(ctx context.Context, arg queryParams.UserQueryParams)
 	var sb strings.Builder
 	sb.WriteString("SELECT u.id, u.first_name, u.last_name, u.email, u.created_at, u.last_login, u.is_active, r.name FROM users u")
 	sb.WriteString(" JOIN roles r ON u.role = r.id")
+
+	var args []any
 	if arg.Search != "" || arg.Role != "" {
 		sb.WriteString(" WHERE")
 		if arg.Search != "" {
-			sb.WriteString(" first_name LIKE '%")
-			sb.WriteString(arg.Search)
-			sb.WriteString("%'")
-			sb.WriteString(" OR last_name LIKE '%")
-			sb.WriteString(arg.Search)
-			sb.WriteString("%'")
+			sb.WriteString(" first_name LIKE ? OR last_name LIKE ?")
+			args = append(args, "%"+arg.Search+"%")
+			args = append(args, "%"+arg.Search+"%")
 		}
 
 		if arg.Search != "" && arg.Role != "" {
@@ -60,24 +58,21 @@ func (q *Queries) GetUsers(ctx context.Context, arg queryParams.UserQueryParams)
 		}
 
 		if arg.Role != "" {
-			sb.WriteString(" r.name = '")
-			sb.WriteString(arg.Role)
-			sb.WriteString("'")
+			sb.WriteString(" r.name = ?")
+			args = append(args, arg.Role)
 		}
 	}
 
 	if arg.Page > 0 {
 		offset := (arg.Page - 1) * arg.Limit
-		sb.WriteString(" LIMIT ")
-		sb.WriteString(strconv.Itoa(arg.Limit))
-		sb.WriteString(" ")
-		sb.WriteString(" OFFSET ")
-		sb.WriteString(strconv.Itoa(offset))
+		sb.WriteString(" LIMIT ? OFFSET ?")
+		args = append(args, arg.Limit)
+		args = append(args, offset)
 	}
 
 	var users = make([]usrDto.UserResponse, 0)
 
-	rows, err := q.db.QueryContext(ctx, sb.String())
+	rows, err := q.db.QueryContext(ctx, sb.String(), args...)
 	if err != nil {
 		return users, err
 	}
@@ -244,15 +239,14 @@ func (q *Queries) CountUsers(ctx context.Context, arg queryParams.UserQueryParam
 	var sb strings.Builder
 	sb.WriteString("SELECT count(*) FROM users u")
 	sb.WriteString(" JOIN roles r ON u.role = r.id")
+
+	var args []any
 	if arg.Search != "" || arg.Role != "" {
 		sb.WriteString(" WHERE")
 		if arg.Search != "" {
-			sb.WriteString(" first_name LIKE '%")
-			sb.WriteString(arg.Search)
-			sb.WriteString("%'")
-			sb.WriteString(" OR last_name LIKE '%")
-			sb.WriteString(arg.Search)
-			sb.WriteString("%'")
+			sb.WriteString(" first_name LIKE ? OR last_name LIKE ?")
+			args = append(args, "%"+arg.Search+"%")
+			args = append(args, "%"+arg.Search+"%")
 		}
 
 		if arg.Search != "" && arg.Role != "" {
@@ -260,13 +254,12 @@ func (q *Queries) CountUsers(ctx context.Context, arg queryParams.UserQueryParam
 		}
 
 		if arg.Role != "" {
-			sb.WriteString(" r.name = '")
-			sb.WriteString(arg.Role)
-			sb.WriteString("'")
+			sb.WriteString(" r.name = ?")
+			args = append(args, arg.Role)
 		}
 	}
 
-	row := q.db.QueryRowContext(ctx, sb.String())
+	row := q.db.QueryRowContext(ctx, sb.String(), args...)
 
 	var userCount int64
 	err := row.Scan(&userCount)
@@ -375,20 +368,23 @@ func (q *Queries) CreateEvent(ctx context.Context, arg params.CreateEvent) error
 func (q *Queries) GetEvents(ctx context.Context, arg queryParams.EventQueryParams) ([]evntDto.EventResponse, error) {
 	var sb strings.Builder
 	sb.WriteString("SELECT id, created_at, type, description, severity FROM events")
+
+	var args []any
 	if arg.Search != "" || arg.Type != "" || arg.Severity != "" {
 		sb.WriteString(" WHERE")
 		if arg.Search != "" {
-			sb.WriteString(" description LIKE '%")
-			sb.WriteString(arg.Search)
-			sb.WriteString("%'")
+			sb.WriteString(" description LIKE ?")
+			args = append(args, "%"+arg.Search+"%")
 		}
 
 		var stmts []string
 		if arg.Type != "" {
-			stmts = append(stmts, " type = '"+arg.Type+"'")
+			stmts = append(stmts, " type = ?")
+			args = append(args, arg.Type)
 		}
 		if arg.Severity != "" {
-			stmts = append(stmts, " severity = '"+arg.Severity+"'")
+			stmts = append(stmts, " severity = ?")
+			args = append(args, arg.Severity)
 		}
 		if arg.Search != "" && len(stmts) > 0 {
 			sb.WriteString(" AND ")
@@ -399,16 +395,14 @@ func (q *Queries) GetEvents(ctx context.Context, arg queryParams.EventQueryParam
 	sb.WriteString(" ORDER BY created_at DESC")
 	if arg.Page > 0 {
 		offset := (arg.Page - 1) * arg.Limit
-		sb.WriteString(" LIMIT ")
-		sb.WriteString(strconv.Itoa(arg.Limit))
-		sb.WriteString(" ")
-		sb.WriteString(" OFFSET ")
-		sb.WriteString(strconv.Itoa(offset))
+		sb.WriteString(" LIMIT ? OFFSET ?")
+		args = append(args, arg.Limit)
+		args = append(args, offset)
 	}
 
 	var events = make([]evntDto.EventResponse, 0)
 
-	rows, err := q.db.QueryContext(ctx, sb.String())
+	rows, err := q.db.QueryContext(ctx, sb.String(), args...)
 	if err != nil {
 		return events, err
 	}
@@ -439,20 +433,23 @@ func (q *Queries) GetEvents(ctx context.Context, arg queryParams.EventQueryParam
 func (q *Queries) CountEvents(ctx context.Context, arg queryParams.EventQueryParams) (int64, error) {
 	var sb strings.Builder
 	sb.WriteString("SELECT count(*) FROM events")
+
+	var args []any
 	if arg.Search != "" || arg.Type != "" || arg.Severity != "" {
 		sb.WriteString(" WHERE")
 		if arg.Search != "" {
-			sb.WriteString(" description LIKE '%")
-			sb.WriteString(arg.Search)
-			sb.WriteString("%'")
+			sb.WriteString(" description LIKE ?")
+			args = append(args, "%"+arg.Search+"%")
 		}
 
 		var stmts []string
 		if arg.Type != "" {
-			stmts = append(stmts, " type = '"+arg.Type+"'")
+			stmts = append(stmts, " type = ?")
+			args = append(args, arg.Type)
 		}
 		if arg.Severity != "" {
-			stmts = append(stmts, " severity = '"+arg.Severity+"'")
+			stmts = append(stmts, " severity = ?")
+			args = append(args, arg.Severity)
 		}
 		if arg.Search != "" && len(stmts) > 0 {
 			sb.WriteString(" AND ")
@@ -460,7 +457,7 @@ func (q *Queries) CountEvents(ctx context.Context, arg queryParams.EventQueryPar
 		sb.WriteString(strings.Join(stmts, " AND "))
 	}
 
-	row := q.db.QueryRowContext(ctx, sb.String())
+	row := q.db.QueryRowContext(ctx, sb.String(), args...)
 
 	var count int64
 	err := row.Scan(&count)
@@ -479,20 +476,23 @@ func (q *Queries) GetTickets(ctx context.Context, arg queryParams.TicketQueryPar
 	var sb strings.Builder
 	sb.WriteString("SELECT t.id, t.subject, CONCAT(u.first_name, ' ', u.last_name) AS user,  t.created_at, t.type, t.status FROM tickets t")
 	sb.WriteString(" JOIN users u ON t.user_id = u.id")
+
+	var args []any
 	if arg.Search != "" || arg.Type != "" || arg.Status != "" {
 		sb.WriteString(" WHERE")
 		if arg.Search != "" {
-			sb.WriteString(" t.subject LIKE '%")
-			sb.WriteString(arg.Search)
-			sb.WriteString("%'")
+			sb.WriteString(" t.subject LIKE ?")
+			args = append(args, "%"+arg.Search+"%")
 		}
 
 		var stmts []string
 		if arg.Type != "" {
-			stmts = append(stmts, " t.type = '"+arg.Type+"'")
+			stmts = append(stmts, " t.type = ?")
+			args = append(args, arg.Type)
 		}
 		if arg.Status != "" {
-			stmts = append(stmts, " t.status = '"+arg.Status+"'")
+			stmts = append(stmts, " t.status = ?")
+			args = append(args, arg.Status)
 		}
 		if arg.Search != "" && len(stmts) > 0 {
 			sb.WriteString(" AND ")
@@ -503,16 +503,14 @@ func (q *Queries) GetTickets(ctx context.Context, arg queryParams.TicketQueryPar
 	sb.WriteString(" ORDER BY t.created_at DESC")
 	if arg.Page > 0 {
 		offset := (arg.Page - 1) * arg.Limit
-		sb.WriteString(" LIMIT ")
-		sb.WriteString(strconv.Itoa(arg.Limit))
-		sb.WriteString(" ")
-		sb.WriteString(" OFFSET ")
-		sb.WriteString(strconv.Itoa(offset))
+		sb.WriteString(" LIMIT ? OFFSET ?")
+		args = append(args, arg.Limit)
+		args = append(args, offset)
 	}
 
 	var tickets = make([]ticketDto.TicketResponse, 0)
 
-	rows, err := q.db.QueryContext(ctx, sb.String())
+	rows, err := q.db.QueryContext(ctx, sb.String(), args...)
 	if err != nil {
 		return tickets, err
 	}
@@ -544,20 +542,23 @@ func (q *Queries) GetTickets(ctx context.Context, arg queryParams.TicketQueryPar
 func (q *Queries) CountTickets(ctx context.Context, arg queryParams.TicketQueryParams) (int64, error) {
 	var sb strings.Builder
 	sb.WriteString("SELECT count(*) FROM tickets")
+
+	var args []any
 	if arg.Search != "" || arg.Type != "" || arg.Status != "" {
 		sb.WriteString(" WHERE")
 		if arg.Search != "" {
-			sb.WriteString(" subject LIKE '%")
-			sb.WriteString(arg.Search)
-			sb.WriteString("%'")
+			sb.WriteString(" t.subject LIKE ?")
+			args = append(args, "%"+arg.Search+"%")
 		}
 
 		var stmts []string
 		if arg.Type != "" {
-			stmts = append(stmts, " type = '"+arg.Type+"'")
+			stmts = append(stmts, " type = ?")
+			args = append(args, arg.Type)
 		}
 		if arg.Status != "" {
-			stmts = append(stmts, " status = '"+arg.Status+"'")
+			stmts = append(stmts, " status = ?")
+			args = append(args, arg.Status)
 		}
 		if arg.Search != "" && len(stmts) > 0 {
 			sb.WriteString(" AND ")
@@ -565,7 +566,7 @@ func (q *Queries) CountTickets(ctx context.Context, arg queryParams.TicketQueryP
 		sb.WriteString(strings.Join(stmts, " AND "))
 	}
 
-	row := q.db.QueryRowContext(ctx, sb.String())
+	row := q.db.QueryRowContext(ctx, sb.String(), args...)
 
 	var count int64
 	err := row.Scan(&count)
@@ -578,20 +579,25 @@ func (q *Queries) GetTicketsByUserId(ctx context.Context, userId int64, arg quer
 	sb.WriteString("SELECT t.id, t.subject, CONCAT(u.first_name, ' ', u.last_name) AS user,  t.created_at, t.type, t.status FROM tickets t")
 	sb.WriteString(" JOIN users u ON t.user_id = u.id")
 	sb.WriteString(" WHERE u.id = ?")
+
+	var args []any
+	args = append(args, userId)
+
 	if arg.Search != "" || arg.Type != "" || arg.Status != "" {
-		sb.WriteString(" AND")
+		sb.WriteString(" WHERE")
 		if arg.Search != "" {
-			sb.WriteString(" t.subject LIKE '%")
-			sb.WriteString(arg.Search)
-			sb.WriteString("%'")
+			sb.WriteString(" t.subject LIKE ?")
+			args = append(args, "%"+arg.Search+"%")
 		}
 
 		var stmts []string
 		if arg.Type != "" {
-			stmts = append(stmts, " t.type = '"+arg.Type+"'")
+			stmts = append(stmts, " t.type = ?")
+			args = append(args, arg.Type)
 		}
 		if arg.Status != "" {
-			stmts = append(stmts, " t.status = '"+arg.Status+"'")
+			stmts = append(stmts, " t.status = ?")
+			args = append(args, arg.Status)
 		}
 		if arg.Search != "" && len(stmts) > 0 {
 			sb.WriteString(" AND ")
@@ -602,16 +608,14 @@ func (q *Queries) GetTicketsByUserId(ctx context.Context, userId int64, arg quer
 	sb.WriteString(" ORDER BY t.created_at DESC")
 	if arg.Page > 0 {
 		offset := (arg.Page - 1) * arg.Limit
-		sb.WriteString(" LIMIT ")
-		sb.WriteString(strconv.Itoa(arg.Limit))
-		sb.WriteString(" ")
-		sb.WriteString(" OFFSET ")
-		sb.WriteString(strconv.Itoa(offset))
+		sb.WriteString(" LIMIT ? OFFSET ?")
+		args = append(args, arg.Limit)
+		args = append(args, offset)
 	}
 
 	var tickets = make([]ticketDto.TicketResponse, 0)
 
-	rows, err := q.db.QueryContext(ctx, sb.String(), userId)
+	rows, err := q.db.QueryContext(ctx, sb.String(), args...)
 	if err != nil {
 		return tickets, err
 	}
@@ -644,20 +648,25 @@ func (q *Queries) CountTicketsByUserId(ctx context.Context, userId int64, arg qu
 	var sb strings.Builder
 	sb.WriteString("SELECT count(*) FROM tickets")
 	sb.WriteString(" WHERE user_id = ?")
+
+	var args []any
+	args = append(args, userId)
+
 	if arg.Search != "" || arg.Type != "" || arg.Status != "" {
 		sb.WriteString(" AND")
 		if arg.Search != "" {
-			sb.WriteString(" subject LIKE '%")
-			sb.WriteString(arg.Search)
-			sb.WriteString("%'")
+			sb.WriteString(" subject LIKE ?")
+			args = append(args, "%"+arg.Search+"%")
 		}
 
 		var stmts []string
 		if arg.Type != "" {
-			stmts = append(stmts, " type = '"+arg.Type+"'")
+			stmts = append(stmts, " type = ?")
+			args = append(args, arg.Type)
 		}
 		if arg.Status != "" {
-			stmts = append(stmts, " status = '"+arg.Status+"'")
+			stmts = append(stmts, " status = ?")
+			args = append(args, arg.Status)
 		}
 		if arg.Search != "" && len(stmts) > 0 {
 			sb.WriteString(" AND ")
@@ -665,7 +674,7 @@ func (q *Queries) CountTicketsByUserId(ctx context.Context, userId int64, arg qu
 		sb.WriteString(strings.Join(stmts, " AND "))
 	}
 
-	row := q.db.QueryRowContext(ctx, sb.String())
+	row := q.db.QueryRowContext(ctx, sb.String(), args...)
 
 	var count int64
 	err := row.Scan(&count)
@@ -872,41 +881,41 @@ func (q *Queries) GetSectionsByCourseId(ctx context.Context, courseId int64) ([]
 	return sectionsRsp, nil
 }
 
-func (q *Queries) GetCourses(ctx context.Context, args queryParams.CourseQueryParams) ([]courseDto.CourseResponse, error) {
+func (q *Queries) GetCourses(ctx context.Context, arg queryParams.CourseQueryParams) ([]courseDto.CourseResponse, error) {
 	var sb strings.Builder
 	sb.WriteString("SELECT c.id, c.name, c.code, c.description, c.image, cc.name, c.created_at FROM courses c")
 	sb.WriteString(" JOIN course_categories cc ON cc.id = c.category_id")
-	if args.Search != "" || args.Category != "" {
+
+	var args []any
+	if arg.Search != "" || arg.Category != "" {
 		sb.WriteString(" WHERE")
-		if args.Search != "" {
-			sb.WriteString(" description LIKE '%")
-			sb.WriteString(args.Search)
-			sb.WriteString("%'")
+		if arg.Search != "" {
+			sb.WriteString(" description LIKE ?")
+			args = append(args, "%"+arg.Search+"%")
 		}
 
 		var stmts []string
-		if args.Category != "" {
-			stmts = append(stmts, " category_id = '"+args.Category+"'")
+		if arg.Category != "" {
+			stmts = append(stmts, " category_id = ?")
+			args = append(args, arg.Category)
 		}
-		if args.Search != "" && len(stmts) > 0 {
+		if arg.Search != "" && len(stmts) > 0 {
 			sb.WriteString(" AND ")
 		}
 		sb.WriteString(strings.Join(stmts, " AND "))
 	}
 
 	sb.WriteString(" ORDER BY created_at DESC")
-	if args.Page > 0 {
-		offset := (args.Page - 1) * args.Limit
-		sb.WriteString(" LIMIT ")
-		sb.WriteString(strconv.Itoa(args.Limit))
-		sb.WriteString(" ")
-		sb.WriteString(" OFFSET ")
-		sb.WriteString(strconv.Itoa(offset))
+	if arg.Page > 0 {
+		offset := (arg.Page - 1) * arg.Limit
+		sb.WriteString(" LIMIT ? OFFSET ?")
+		args = append(args, arg.Limit)
+		args = append(args, offset)
 	}
 
 	var courses = make([]courseDto.CourseResponse, 0)
 
-	rows, err := q.db.QueryContext(ctx, sb.String())
+	rows, err := q.db.QueryContext(ctx, sb.String(), args...)
 	if err != nil {
 		return courses, err
 	}
@@ -936,29 +945,31 @@ func (q *Queries) GetCourses(ctx context.Context, args queryParams.CourseQueryPa
 	return courses, nil
 }
 
-func (q *Queries) CountCourses(ctx context.Context, args queryParams.CourseQueryParams) (int64, error) {
+func (q *Queries) CountCourses(ctx context.Context, arg queryParams.CourseQueryParams) (int64, error) {
 	var sb strings.Builder
 	sb.WriteString("SELECT count(*) FROM courses c")
 	sb.WriteString(" JOIN course_categories cc ON cc.id = c.category_id")
-	if args.Search != "" || args.Category != "" {
+
+	var args []any
+	if arg.Search != "" || arg.Category != "" {
 		sb.WriteString(" WHERE")
-		if args.Search != "" {
-			sb.WriteString(" description LIKE '%")
-			sb.WriteString(args.Search)
-			sb.WriteString("%'")
+		if arg.Search != "" {
+			sb.WriteString(" description LIKE ?")
+			args = append(args, "%"+arg.Search+"%")
 		}
 
 		var stmts []string
-		if args.Category != "" {
-			stmts = append(stmts, " category_id = '"+args.Category+"'")
+		if arg.Category != "" {
+			stmts = append(stmts, " category_id = ?")
+			args = append(args, arg.Category)
 		}
-		if args.Search != "" && len(stmts) > 0 {
+		if arg.Search != "" && len(stmts) > 0 {
 			sb.WriteString(" AND ")
 		}
 		sb.WriteString(strings.Join(stmts, " AND "))
 	}
 
-	row := q.db.QueryRowContext(ctx, sb.String())
+	row := q.db.QueryRowContext(ctx, sb.String(), args...)
 
 	var count int64
 	err := row.Scan(&count)

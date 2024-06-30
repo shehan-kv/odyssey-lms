@@ -13,10 +13,10 @@
 	import { toast } from 'svelte-sonner';
 	import FullScreenLoader from '$lib/components/fullScreenLoader.svelte';
 
-	const formState = { email: '', password: '', remember_me: false };
+	const formState = { firstName: '', lastName: '', email: '', password: '', confirmPassword: '' };
 
 	const formSubmit = () => {
-		fetch('/api/auth/sign-in', {
+		fetch('/api/auth/sign-up', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -24,16 +24,16 @@
 			body: JSON.stringify(formState)
 		})
 			.then((response) => {
-				if (response.status !== 200) {
-					toast.error('Sign in Failed');
+				if (!response.ok) {
+					toast.error('Sign up Failed');
 					return;
 				}
 
-				toast.success('Signed In');
-				goto('/');
+				toast.success('Signed Up');
+				goto('/sign-in');
 			})
 			.catch(() => {
-				toast.error('Sign in Failed');
+				toast.error('Sign up Failed');
 			});
 	};
 
@@ -55,7 +55,7 @@
 </script>
 
 <svelte:head>
-	<title>Sign In</title>
+	<title>Sign Up</title>
 </svelte:head>
 
 {#if loading}
@@ -72,7 +72,7 @@
 
 <div class="min-h-screen px-4 sm:px-0 flex justify-center items-center">
 	<div
-		class="p-px my-24 rounded-xl bg-gradient-to-br from-emerald-300 via-transparent to-emerald-300 dark:from-emerald-700 dark:via-transparent dark:to-emerald-700 w-full max-w-md"
+		class="p-px my-24 rounded-xl bg-gradient-to-br from-emerald-300 via-transparent to-emerald-300 dark:from-emerald-700 dark:via-transparent dark:to-emerald-700 w-full max-w-lg"
 	>
 		<div
 			class="bg-white dark:bg-neutral-950 dark:text-neutral-200 py-10 sm:py-16 px-6 sm:px-14 rounded-xl"
@@ -80,32 +80,60 @@
 			<div class="mb-4">
 				<Logo size="48" />
 			</div>
-			<h1 class="text-xl mb-10">Sign In</h1>
+			<h1 class="text-xl mb-10">Sign Up</h1>
 
 			<form on:submit|preventDefault={formSubmit}>
-				<div class="flex flex-col gap-1.5">
+				<div class="flex gap-4">
+					<div class="flex flex-col gap-1.5">
+						<Label for="firstName" class="text-sm">First Name</Label>
+						<Input
+							id="firstName"
+							type="text"
+							class="rounded"
+							required
+							bind:value={formState.firstName}
+						/>
+					</div>
+
+					<div class="flex flex-col gap-1.5">
+						<Label for="lastName" class="text-sm">Last Name</Label>
+						<Input
+							id="lastName"
+							type="text"
+							class="rounded"
+							required
+							bind:value={formState.lastName}
+						/>
+					</div>
+				</div>
+
+				<div class="flex flex-col gap-1.5 mt-6">
 					<Label for="email" class="text-sm">Email</Label>
 					<Input id="email" type="email" class="rounded" required bind:value={formState.email} />
 				</div>
 
-				<div class="flex flex-col gap-1.5 mt-6">
-					<Label for="password" class="text-sm">Password</Label>
-					<Input
-						id="password"
-						type="password"
-						class="rounded"
-						required
-						bind:value={formState.password}
-					/>
-				</div>
+				<div class="flex gap-4">
+					<div class="flex flex-col gap-1.5 mt-6">
+						<Label for="password" class="text-sm">Password</Label>
+						<Input
+							id="password"
+							type="password"
+							class="rounded"
+							required
+							bind:value={formState.password}
+						/>
+					</div>
 
-				<div class="flex items-center gap-3 mt-6">
-					<Checkbox
-						id="remember_me"
-						bind:checked={formState.remember_me}
-						class="rounded data-[state=checked]:bg-emerald-600 data-[state=checked]:text-emerald-50 dark:data-[state=checked]:bg-emerald-300 dark:data-[state=checked]:text-emerald-950"
-					/>
-					<Label for="remember_me" class="text-sm">Remember Me</Label>
+					<div class="flex flex-col gap-1.5 mt-6">
+						<Label for="confirmPassword" class="text-sm">Confirm Password</Label>
+						<Input
+							id="confirmPassword"
+							type="password"
+							class="rounded"
+							required
+							bind:value={formState.confirmPassword}
+						/>
+					</div>
 				</div>
 
 				<Button
@@ -114,14 +142,13 @@
 					dark:text-emerald-950
 					mt-7"
 				>
-					Sign in <MoveRight class="ml-4 dark:text-emerald-950" />
+					Sign Up <MoveRight class="ml-4 dark:text-emerald-950" />
 				</Button>
 			</form>
-
 			<div class="mt-6">
 				<p class="text-sm">
-					Don't have an account ?
-					<a href="/sign-up" class="text-emerald-800 dark:text-emerald-300"> Sign Up </a>
+					Already have an account ?
+					<a href="/sign-in" class="text-emerald-600 dark:text-emerald-300"> Sign In </a>
 				</p>
 			</div>
 		</div>

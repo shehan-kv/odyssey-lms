@@ -201,12 +201,7 @@ func (q *Queries) GetSignUpStats(ctx context.Context) ([]usrDto.SignUpStat, erro
 
 	var pastYearRsp = make([]usrDto.SignUpStat, 12)
 	for i := 12; i > 0; i-- {
-		var month string
-		if i != 1 {
-			month = time.Now().AddDate(0, -i, 0).Format("2006-01")
-		} else {
-			month = time.Now().Format("2006-01")
-		}
+		month := time.Now().AddDate(0, -i, 0).Format("2006-01")
 
 		var tempStat *usrDto.SignUpStat
 		for _, s := range statRsp {

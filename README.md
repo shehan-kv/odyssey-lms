@@ -16,6 +16,7 @@ The app requires a few environment variables:
 ```
 DB_VARIANT
 CONNECTION_STRING
+LISTEN_ON
 ```
 
 ```DB_VARIANT``` Takes the following values:
@@ -35,4 +36,9 @@ CONNECTION_STRING=<username>:<password>@<protocol>(<host>:<port>)/<database>?par
 
 DB_VARIANT=postgresql
 CONNECTION_STRING=postgres://<username>:<password>@<host>/<database>?sslmode=disable
+```
+
+```LISTEN_ON``` is the port the app should listen on, it's optional, with a default value of ```:8080```. You can define this variable like this:
+```
+LISTEN_ON=:8000
 ```

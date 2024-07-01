@@ -157,7 +157,7 @@
 					{#if data && data.allUsers}
 						{data.allUsers}
 					{:else}
-						N/A
+						0
 					{/if}
 				</p>
 			</div>
@@ -167,7 +167,7 @@
 					{#if data && data.students}
 						{data.students}
 					{:else}
-						N/A
+						0
 					{/if}
 				</p>
 			</div>
@@ -177,7 +177,7 @@
 					{#if data && data.administrators}
 						{data.administrators}
 					{:else}
-						N/A
+						0
 					{/if}
 				</p>
 			</div>

@@ -112,6 +112,12 @@ func CreateUser(ctx context.Context, createReq dto.UserCreateRequest) error {
 		return err
 	}
 
+	_ = db.QUERY.CreateEvent(ctx, params.CreateEvent{
+		Type:        "user",
+		Severity:    "info",
+		Description: "User account created: " + createReq.FirstName + " " + createReq.LastName,
+	})
+
 	return nil
 }
 

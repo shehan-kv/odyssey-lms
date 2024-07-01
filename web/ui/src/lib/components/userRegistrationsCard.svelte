@@ -184,12 +184,12 @@
 		</div>
 
 		<div class="flex gap-8">
-			<a href="/">
+			<a href="/iam">
 				<span class="flex text-xs items-center gap-2 font-semibold"
 					><UserPlus size={20} /> Create A User</span
 				>
 			</a>
-			<a href="/">
+			<a href="/iam">
 				<span class="flex text-xs items-center gap-2 font-semibold"
 					><UserSearch size={20} /> View All Users</span
 				>
